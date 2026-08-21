@@ -161,10 +161,10 @@ final class MonitorController: ObservableObject {
         WebPageChecker(timeoutMs: config.timeoutMs, settleMs: config.settleMs)
     }
 
-    /// 대상 1회 테스트. 서버 실행기가 켜져 있으면 관측점은 서버가 고르고 결과는 1건.
-    /// 로컬 브라우저 폴백이면 관측점마다 1건.
+    /// 대상 1회 테스트. 로컬 모드면 기존 WebKit(관측점마다 1건).
+    /// 꺼져 있으면 서버 실행기가 출구를 고르고 결과는 1건.
     private func checkOnce(_ target: Target) async {
-        if config.remoteEngine.enabled {
+        if config.remoteEngine.usesRemoteEngine {
             append(await runRemote(target))
             return
         }

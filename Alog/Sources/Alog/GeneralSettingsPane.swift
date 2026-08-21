@@ -27,18 +27,25 @@ struct GeneralSettingsPane: View {
             }
 
             Section("실행기") {
-                Toggle("서버에서 점검", isOn: $controller.config.remoteEngine.enabled)
-                TextField(
-                    "실행기 URL",
-                    text: $controller.config.remoteEngine.baseURL,
-                    prompt: Text(AppIdentity.current.checkAPIBaseURL)
-                )
-                .textContentType(.URL)
-                .autocorrectionDisabled()
-                Text("비우면 \(AppIdentity.current.checkAPIBaseURL) 을 씁니다. 토큰은 Application Support/\(AppIdentity.current.supportDirectoryName)/api-token 파일입니다. 끄면 로컬 WebKit으로 폴백합니다.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                Toggle("로컬 모드", isOn: $controller.config.remoteEngine.localMode)
+                if controller.config.remoteEngine.localMode {
+                    Text("이 맥에서 WebKit으로 직접 점검합니다. 아래 관측점(프록시)이 있으면 그걸 타고 나갑니다.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    TextField(
+                        "실행기 URL",
+                        text: $controller.config.remoteEngine.baseURL,
+                        prompt: Text(AppIdentity.current.checkAPIBaseURL)
+                    )
+                    .textContentType(.URL)
+                    .autocorrectionDisabled()
+                    Text("서버(\(AppIdentity.current.checkAPIBaseURL))에 점검을 맡깁니다. 토큰은 Application Support/\(AppIdentity.current.supportDirectoryName)/api-token 입니다.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             Section("브라우저") {
@@ -54,6 +61,7 @@ struct GeneralSettingsPane: View {
                 )
             }
 
+            if controller.config.remoteEngine.localMode {
             Section("관측점 (다지역 점검)") {
                 if controller.config.vantages.isEmpty {
                     Text("관측점이 없으면 로컬에서 직접 점검합니다. 프록시를 추가하면 각 대상을 관측점(지역)마다 점검합니다.")
@@ -94,6 +102,7 @@ struct GeneralSettingsPane: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
+            }
             }
 
             Section("로그 파일") {

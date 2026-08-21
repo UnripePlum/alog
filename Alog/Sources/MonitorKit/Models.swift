@@ -143,14 +143,39 @@ public struct Vantage: Codable, Sendable, Hashable, Identifiable {
     }
 }
 
-/// 점검을 서버 실행기에 맡길지. URL이 비면 identity.checkAPIBaseURL을 쓴다.
+/// 로컬 모드면 이 맥 WebKit, 꺼지면 서버 실행기.
+/// URL이 비면 identity.checkAPIBaseURL을 쓴다.
 public struct RemoteEngineConfig: Codable, Sendable, Hashable {
-    public var enabled: Bool
+    public var localMode: Bool
     public var baseURL: String
 
-    public init(enabled: Bool = true, baseURL: String = "") {
-        self.enabled = enabled
+    public init(localMode: Bool = false, baseURL: String = "") {
+        self.localMode = localMode
         self.baseURL = baseURL
+    }
+
+    public var usesRemoteEngine: Bool { !localMode }
+
+    enum CodingKeys: String, CodingKey {
+        case localMode, baseURL, enabled
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        baseURL = try c.decodeIfPresent(String.self, forKey: .baseURL) ?? ""
+        if let local = try c.decodeIfPresent(Bool.self, forKey: .localMode) {
+            localMode = local
+        } else if let enabled = try c.decodeIfPresent(Bool.self, forKey: .enabled) {
+            localMode = !enabled
+        } else {
+            localMode = false
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(localMode, forKey: .localMode)
+        try c.encode(baseURL, forKey: .baseURL)
     }
 }
 

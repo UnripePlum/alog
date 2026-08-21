@@ -41,6 +41,25 @@ final class RemoteCheckCodecTests: XCTestCase {
     }
 }
 
+final class RemoteEngineConfigTests: XCTestCase {
+    func testLegacyEnabledTrueMeansNotLocal() throws {
+        let json = #"{"enabled":true,"baseURL":""}"#
+        let cfg = try JSONDecoder().decode(RemoteEngineConfig.self, from: Data(json.utf8))
+        XCTAssertFalse(cfg.localMode)
+        XCTAssertTrue(cfg.usesRemoteEngine)
+    }
+
+    func testLocalModeRoundTrip() throws {
+        let original = RemoteEngineConfig(localMode: true, baseURL: "")
+        let data = try JSONEncoder().encode(original)
+        let loaded = try JSONDecoder().decode(RemoteEngineConfig.self, from: data)
+        XCTAssertTrue(loaded.localMode)
+        let obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertNil(obj["enabled"])
+        XCTAssertEqual(obj["localMode"] as? Bool, true)
+    }
+}
+
 final class TokenResolverTests: XCTestCase {
     func testEnvTokenWinsOverFile() throws {
         let dir = FileManager.default.temporaryDirectory
