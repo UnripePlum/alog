@@ -89,18 +89,20 @@ struct ContentView: View {
     // MARK: - 디테일 (편집기 + 로그)
 
     private var detail: some View {
-        VStack(spacing: 0) {
-            if let id = selection,
-               let index = controller.config.targets.firstIndex(where: { $0.id == id }) {
-                TargetEditorView(target: $controller.config.targets[index])
-            } else if controller.config.targets.isEmpty {
-                EmptyTargetPlaceholder { controller.requestAddTarget() }
-            } else {
-                SelectTargetPlaceholder { controller.requestAddTarget() }
+        VSplitView {
+            Group {
+                if let id = selection,
+                   let index = controller.config.targets.firstIndex(where: { $0.id == id }) {
+                    TargetEditorView(target: $controller.config.targets[index])
+                } else if controller.config.targets.isEmpty {
+                    EmptyTargetPlaceholder { controller.requestAddTarget() }
+                } else {
+                    SelectTargetPlaceholder { controller.requestAddTarget() }
+                }
             }
-            Divider()
+            .frame(minHeight: 160)
             LogView(entries: controller.entries)
-                .frame(minHeight: 200)
+                .frame(minHeight: 140)
         }
     }
 

@@ -1,15 +1,10 @@
 import SwiftUI
 import MonitorKit
 
-/// 점검 로그 (최신순). 한 행 = 테스트 1회, 펼치면 그 안의 각 항목 결과.
+/// 점검 로그 (최신순). 한 행 = 테스트 1회.
 struct LogView: View {
     let entries: [CheckRun]
-
-    private static let timeFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss"
-        return f
-    }()
+    @State private var expanded: Set<UUID> = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -26,51 +21,26 @@ struct LogView: View {
                     .foregroundStyle(.secondary)
                     .font(.callout)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal, 12)
             } else {
-                List(entries) { run in
-                    DisclosureGroup {
-                        ForEach(run.items) { item in
-                            HStack(spacing: 8) {
-                                Image(systemName: item.ok ? "checkmark.circle" : "xmark.circle")
-                                    .foregroundStyle(item.ok ? Color.green : Color.red)
-                                    .font(.caption)
-                                Text(item.actionKind.label)
-                                    .font(.caption)
-                                Spacer()
-                                Text(item.detail)
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                                Text("\(item.durationMs)ms")
-                                    .font(.caption2)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding(.leading, 4)
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(entries) { run in
+                            LogRunRow(
+                                run: run,
+                                expanded: expanded.contains(run.id),
+                                onToggle: { toggle(run.id) }
+                            )
+                            Divider()
                         }
-                    } label: {
-                        runHeader(run)
                     }
                 }
             }
         }
     }
 
-    private func runHeader(_ run: CheckRun) -> some View {
-        let okCount = run.items.filter { $0.ok }.count
-        return HStack(spacing: 10) {
-            Image(systemName: run.ok ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .foregroundStyle(run.ok ? Color.green : Color.red)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(run.targetName) · \(run.vantageName)").font(.callout)
-                Text("\(okCount)/\(run.items.count) 항목 정상")
-                    .font(.caption)
-                    .foregroundStyle(run.ok ? Color.secondary : Color.red)
-            }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(Self.timeFormatter.string(from: run.timestamp)).font(.caption)
-                Text("\(run.durationMs)ms").font(.caption2).foregroundStyle(.secondary)
-            }
-        }
+    private func toggle(_ id: UUID) {
+        if expanded.contains(id) { expanded.remove(id) }
+        else { expanded.insert(id) }
     }
 }
