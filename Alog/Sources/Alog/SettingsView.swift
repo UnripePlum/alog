@@ -30,12 +30,12 @@ struct SettingsView: View {
                     HStack(spacing: 6) {
                         Text("빠른 설정").font(.caption).foregroundStyle(.secondary)
                         Spacer()
-                        preset("10초", 5, 15)
+                        preset("5초", 3, 8)
+                        preset("10초", 10, 20)
                         preset("30초", 20, 40)
                         preset("1분", 45, 90)
-                        preset("5분", 240, 360)
                     }
-                    Text("매 테스트 후 최소~최대 사이 랜덤 시간만큼 대기합니다. 실행 중 바꾸면 다음 테스트부터 적용됩니다.")
+                    Text("사이트마다 점검이 끝나면 \(Int(controller.config.schedule.minSeconds))~\(Int(controller.config.schedule.maxSeconds))초 뒤에 다시 들어갑니다. 실행 중 바꾸면 다음 대기부터 적용됩니다.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

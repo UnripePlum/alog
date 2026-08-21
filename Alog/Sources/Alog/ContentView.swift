@@ -101,7 +101,7 @@ struct ContentView: View {
                 }
             }
             .frame(minHeight: 160)
-            LogView(entries: controller.entries)
+            LogView(entries: controller.entries, schedule: controller.config.schedule)
                 .frame(minHeight: 140)
         }
     }

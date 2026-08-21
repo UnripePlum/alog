@@ -3,8 +3,8 @@ import Foundation
 /// 폴백 기본값을 한 곳에 모은다 (분기 리터럴 금지 원칙).
 /// 대상-특정 값(URL 등)은 절대 여기 두지 않는다.
 public enum Defaults {
-    public static let minSeconds: Double = 300
-    public static let maxSeconds: Double = 900
+    public static let minSeconds: Double = 10
+    public static let maxSeconds: Double = 20
     public static let timeoutMs: Int = 30_000
     public static let settleMs: Int = 1_200
 

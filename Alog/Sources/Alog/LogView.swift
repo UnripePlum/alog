@@ -4,6 +4,8 @@ import MonitorKit
 /// 점검 로그 (최신순). 한 행 = 테스트 1회.
 struct LogView: View {
     let entries: [CheckRun]
+    var schedule: ScheduleConfig = ScheduleConfig(
+        minSeconds: Defaults.minSeconds, maxSeconds: Defaults.maxSeconds)
     @State private var expanded: Set<UUID> = []
 
     var body: some View {
@@ -11,6 +13,9 @@ struct LogView: View {
             HStack {
                 Text("점검 로그").font(.headline)
                 Spacer()
+                Text("\(Int(min(schedule.minSeconds, schedule.maxSeconds)))~\(Int(max(schedule.minSeconds, schedule.maxSeconds)))초마다")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 Text("\(entries.count)회").font(.caption).foregroundStyle(.secondary)
             }
             .padding(.horizontal, 12)
