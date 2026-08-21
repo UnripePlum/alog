@@ -5,6 +5,7 @@ import MonitorKit
 /// 메뉴 막대: 창 없이도 점검 상태 확인·시작/중지.
 struct MenuBarStatusView: View {
     @EnvironmentObject var controller: MonitorController
+    @EnvironmentObject var updates: UpdateService
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
@@ -24,6 +25,15 @@ struct MenuBarStatusView: View {
         Button("사이트 추가") {
             openWindow(id: WindowID.main)
             controller.requestAddTarget()
+        }
+        Divider()
+        Button("업데이트 확인") {
+            Task { await updates.check(silent: false) }
+        }
+        if case .available(let rel) = updates.status {
+            Button("\(rel.version.string) 설치") {
+                Task { await updates.installAvailable() }
+            }
         }
         Divider()
         Button("종료") { NSApplication.shared.terminate(nil) }

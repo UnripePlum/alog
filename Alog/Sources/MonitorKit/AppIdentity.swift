@@ -8,6 +8,8 @@ public struct AppIdentity: Codable, Sendable, Equatable {
     public var supportDirectoryName: String
     public var bundleFileName: String
     public var legacySupportDirectoryNames: [String]
+    public var githubOwner: String
+    public var githubRepo: String
 
     public static let current: AppIdentity = {
         do { return try loadBundled() }

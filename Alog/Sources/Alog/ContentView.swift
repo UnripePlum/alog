@@ -3,6 +3,7 @@ import MonitorKit
 
 struct ContentView: View {
     @EnvironmentObject var controller: MonitorController
+    @EnvironmentObject var updates: UpdateService
     @State private var selection: Target.ID?
 
     var body: some View {
@@ -15,7 +16,9 @@ struct ContentView: View {
         .sheet(item: $controller.presentedSheet) { sheet in
             switch sheet {
             case .settings:
-                SettingsView().environmentObject(controller)
+                SettingsView()
+                    .environmentObject(controller)
+                    .environmentObject(updates)
             case .add:
                 AddTargetSheet { id in
                     selection = id
@@ -25,6 +28,17 @@ struct ContentView: View {
         }
         .onChange(of: controller.config) { _, _ in controller.save() }
         .onAppear { controller.runSelfTestIfRequested() }
+        .alert(
+            updateAlertTitle,
+            isPresented: updateAlertPresented
+        ) {
+            Button("설치") {
+                Task { await updates.installAvailable() }
+            }
+            Button("나중에", role: .cancel) { updates.dismissPrompt() }
+        } message: {
+            Text(updateAlertMessage)
+        }
     }
 
     // MARK: - 사이드바 (대상 목록)
@@ -135,5 +149,33 @@ struct ContentView: View {
                 Label("설정", systemImage: "gearshape")
             }
         }
+    }
+
+    private var updateAlertPresented: Binding<Bool> {
+        Binding(
+            get: {
+                if case .available = updates.status { return true }
+                return false
+            },
+            set: { show in
+                if !show { updates.dismissPrompt() }
+            }
+        )
+    }
+
+    private var updateAlertTitle: String {
+        if case .available(let rel) = updates.status {
+            return "\(AppIdentity.current.displayName) \(rel.version.string)"
+        }
+        return "업데이트"
+    }
+
+    private var updateAlertMessage: String {
+        if case .available(let rel) = updates.status {
+            let notes = rel.notes.trimmingCharacters(in: .whitespacesAndNewlines)
+            if notes.isEmpty { return "새 버전을 받아 설치합니다. 설치 후 앱이 다시 시작됩니다." }
+            return notes
+        }
+        return ""
     }
 }

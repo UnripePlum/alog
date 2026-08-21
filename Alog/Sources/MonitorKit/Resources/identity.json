@@ -4,5 +4,7 @@
   "bundleIdentifier": "io.muinlab.alog",
   "supportDirectoryName": "Alog",
   "bundleFileName": "Alog",
-  "legacySupportDirectoryNames": ["SiteMonitor", "WebVisitor"]
+  "legacySupportDirectoryNames": ["SiteMonitor", "WebVisitor"],
+  "githubOwner": "UnripePlum",
+  "githubRepo": "alog"
 }

@@ -4,6 +4,7 @@ import MonitorKit
 /// 주기/브라우저/로그 설정.
 struct SettingsView: View {
     @EnvironmentObject var controller: MonitorController
+    @EnvironmentObject var updates: UpdateService
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -90,6 +91,22 @@ struct SettingsView: View {
                         .textSelection(.enabled)
                         .foregroundStyle(.secondary)
                 }
+
+                Section("버전") {
+                    Text("현재 \(updates.currentVersionLabel)")
+                    Button("업데이트 확인") {
+                        Task { await updates.check(silent: false) }
+                    }
+                    .disabled(updates.status == .checking || updates.status == .downloading)
+                    Text(statusLine)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if case .available(let rel) = updates.status {
+                        Button("\(rel.version.string) 설치") {
+                            Task { await updates.installAvailable() }
+                        }
+                    }
+                }
             }
             .formStyle(.grouped)
 
@@ -101,7 +118,18 @@ struct SettingsView: View {
             }
             .padding(12)
         }
-        .frame(width: 460, height: 560)
+        .frame(width: 460, height: 640)
+    }
+
+    private var statusLine: String {
+        switch updates.status {
+        case .idle: return "GitHub Releases에서 새 zip을 받습니다."
+        case .checking: return "확인 중…"
+        case .upToDate: return "최신 버전입니다."
+        case .available(let rel): return "새 버전 \(rel.version.string)을 설치할 수 있습니다."
+        case .downloading: return "받는 중… 끝나면 앱이 다시 시작됩니다."
+        case .failed(let msg): return msg
+        }
     }
 
     private func preset(_ label: String, _ lo: Double, _ hi: Double) -> some View {

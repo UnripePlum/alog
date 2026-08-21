@@ -42,6 +42,15 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/${EXECUTABLE_NAME}"
 cp "$HERE/Info.plist" "$APP/Contents/Info.plist"
 
+VERSION_FILE="$HERE/../VERSION"
+if [[ -f "$VERSION_FILE" ]]; then
+  VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+  SHORT="$(python3 -c "print('.'.join('${VERSION}'.split('.')[:3]))")"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$APP/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $SHORT" "$APP/Contents/Info.plist"
+  echo "==> 버전 $VERSION (short $SHORT)"
+fi
+
 codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || \
   echo "경고: ad-hoc 코드서명 실패(무시 가능, Gatekeeper 우클릭 열기 필요)"
 

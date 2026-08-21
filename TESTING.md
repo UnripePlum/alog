@@ -10,7 +10,7 @@
 ## Layers
 - **Unit:** `MonitorKit` (TargetFactory, ConfigStore, ActionJS, logger) and `tests/` for the Python CLI.
 - **Integration:** Swift `swift test` covers config round-trip and starter fallback.
-- **Manual:** first-run empty window → 사이트 추가 (⌘N) → URL → 대상이 목록에 생기고 기본 점검 동작 4개가 붙는지.
+- **Manual:** first-run empty window → 사이트 추가 (⌘N) → URL → 대상이 목록에 생기고 기본 점검 동작 4개가 붙는지. 설정 → 업데이트 확인.
 
 ## Conventions
 - Swift tests live in `Alog/Tests/MonitorKitTests/`.

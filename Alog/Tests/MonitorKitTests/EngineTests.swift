@@ -39,6 +39,8 @@ final class AppIdentityTests: XCTestCase {
         XCTAssertEqual(id.bundleIdentifier, "io.muinlab.alog")
         XCTAssertEqual(id.supportDirectoryName, "Alog")
         XCTAssertEqual(id.bundleFileName, "Alog")
+        XCTAssertEqual(id.githubOwner, "UnripePlum")
+        XCTAssertEqual(id.githubRepo, "alog")
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("SiteMonitor"))
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("WebVisitor"))
     }
@@ -80,7 +82,9 @@ final class ConfigStoreTests: XCTestCase {
             bundleIdentifier: "io.muinlab.alog",
             supportDirectoryName: "Alog",
             bundleFileName: "Alog",
-            legacySupportDirectoryNames: ["SiteMonitor", "WebVisitor"]
+            legacySupportDirectoryNames: ["SiteMonitor", "WebVisitor"],
+            githubOwner: "UnripePlum",
+            githubRepo: "alog"
         )
         let newURL = root.appendingPathComponent("Alog/config.json")
         ConfigStore.migrateLegacyConfigIfNeeded(
