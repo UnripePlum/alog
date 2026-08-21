@@ -7,12 +7,13 @@ import MonitorKit
 @MainActor
 final class MonitorController: ObservableObject {
     enum PresentedSheet: String, Identifiable {
-        case settings
         case add
         var id: String { rawValue }
     }
 
-    @Published var config: AppConfig
+    @Published var config: AppConfig {
+        didSet { save() }
+    }
     @Published var presentedSheet: PresentedSheet?
     @Published private(set) var runningIDs: Set<UUID> = []
     @Published private(set) var entries: [CheckRun] = []
@@ -37,16 +38,11 @@ final class MonitorController: ObservableObject {
         presentedSheet = .add
     }
 
-    func requestSettings() {
-        presentedSheet = .settings
-    }
-
     /// 이름·URL로 대상을 만들어 추가한다. 추가 즉시 실제 페이지 백그라운드 점검을 시작한다.
     @discardableResult
     func addTarget(name: String, url: String) throws -> UUID {
         let target = try factory.make(name: name, url: url)
         config.targets.append(target)
-        save()
         presentedSheet = nil
         start(target.id)
         return target.id
@@ -161,14 +157,18 @@ final class MonitorController: ObservableObject {
 
     // MARK: - 내부 루프
 
-    private func makeChecker() -> Checker {
+    private func makeLocalChecker() -> any Checker {
         WebPageChecker(timeoutMs: config.timeoutMs, settleMs: config.settleMs)
     }
 
-    /// 대상 1회 테스트: 각 관측점(없으면 로컬 직접)에서 페이지 방문 + 모든 동작 점검.
-    /// 관측점이 여러 개면 지역마다 결과가 1건씩 나온다.
+    /// 대상 1회 테스트. 서버 실행기가 켜져 있으면 관측점은 서버가 고르고 결과는 1건.
+    /// 로컬 브라우저 폴백이면 관측점마다 1건.
     private func checkOnce(_ target: Target) async {
-        let checker = makeChecker()
+        if config.remoteEngine.enabled {
+            append(await runRemote(target))
+            return
+        }
+        let checker = makeLocalChecker()
         let vantages: [Vantage?] = config.vantages.isEmpty
             ? [nil]
             : config.vantages.map { Optional($0) }
@@ -176,6 +176,44 @@ final class MonitorController: ObservableObject {
             let run = await checker.runCheck(target: target, vantage: v)
             append(run)
         }
+    }
+
+    private func runRemote(_ target: Target) async -> CheckRun {
+        let support = store.url.deletingLastPathComponent()
+        guard let base = RemoteChecker.resolvedBaseURL(
+            config: config.remoteEngine, identity: .current
+        ) else {
+            return remoteSetupFailure(target, "실행기 URL이 없습니다")
+        }
+        guard let token = TokenResolver.resolve(supportDirectory: support) else {
+            return remoteSetupFailure(
+                target,
+                "실행기 토큰이 없습니다. \(support.appendingPathComponent(TokenResolver.fileName).path)"
+            )
+        }
+        let checker = RemoteChecker(
+            baseURL: base,
+            token: token,
+            timeoutMs: config.timeoutMs,
+            settleMs: config.settleMs,
+            poster: URLSessionCheckPoster()
+        )
+        return await checker.runCheck(target: target, vantage: nil)
+    }
+
+    private func remoteSetupFailure(_ target: Target, _ detail: String) -> CheckRun {
+        let items = target.actions.map {
+            ActionOutcome(actionKind: $0.kind, ok: false, detail: detail, durationMs: 0)
+        }
+        return CheckRun(
+            timestamp: Date(),
+            targetName: target.name.isEmpty ? target.url : target.name,
+            url: target.url,
+            vantageName: "설정",
+            ok: false,
+            items: items,
+            durationMs: 0
+        )
     }
 
     /// 대상 하나의 독립 루프: 테스트 → 랜덤 간격 대기 → 반복.

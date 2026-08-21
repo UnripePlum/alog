@@ -1,12 +1,15 @@
 {
   "displayName": "Alog",
   "executableName": "Alog",
-  "bundleIdentifier": "io.muinlab.alog",
+  "bundleIdentifier": "com.unripeplum.alog",
   "supportDirectoryName": "Alog",
   "bundleFileName": "Alog",
   "legacySupportDirectoryNames": ["SiteMonitor", "WebVisitor"],
   "githubOwner": "UnripePlum",
   "githubRepo": "alog",
   "policyFile": "update-policy.json",
-  "policyRef": "HEAD"
+  "policyRef": "HEAD",
+  "developerName": "UnripePlum",
+  "copyright": "Copyright © 2026 UnripePlum",
+  "checkAPIBaseURL": "https://alog.unripeplum.com"
 }

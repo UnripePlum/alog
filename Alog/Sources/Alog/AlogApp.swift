@@ -1,4 +1,5 @@
 import SwiftUI
+import MonitorKit
 
 @main
 struct AlogApp: App {
@@ -11,7 +12,7 @@ struct AlogApp: App {
             ContentView()
                 .environmentObject(controller)
                 .environmentObject(updates)
-                .frame(minWidth: 780, minHeight: 540)
+                .frame(minWidth: 860, minHeight: 560)
                 .onAppear {
                     Task {
                         await updates.check(silent: true)
@@ -23,7 +24,14 @@ struct AlogApp: App {
                     }
                 }
         }
+        .defaultSize(width: 980, height: 640)
         .commands {
+            CommandGroup(replacing: .appInfo) {
+                AboutCommand()
+            }
+            CommandGroup(replacing: .appSettings) {
+                SettingsCommand()
+            }
             CommandGroup(replacing: .newItem) {
                 Button("사이트 추가") {
                     controller.requestAddTarget()
@@ -37,6 +45,21 @@ struct AlogApp: App {
                 }
             }
         }
+
+        Window("설정", id: WindowID.settings) {
+            SettingsView()
+                .environmentObject(controller)
+                .environmentObject(updates)
+        }
+        .defaultSize(width: 480, height: 520)
+        .windowResizability(.contentSize)
+
+        Window("\(AppIdentity.current.displayName) 정보", id: WindowID.about) {
+            AboutView()
+                .environmentObject(updates)
+        }
+        .windowResizability(.contentSize)
+        .windowStyle(.hiddenTitleBar)
 
         MenuBarExtra {
             MenuBarStatusView()

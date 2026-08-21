@@ -3,13 +3,16 @@ import Foundation
 /// 폴백 기본값을 한 곳에 모은다 (분기 리터럴 금지 원칙).
 /// 대상-특정 값(URL 등)은 절대 여기 두지 않는다.
 public enum Defaults {
-    public static let minSeconds: Double = 10
-    public static let maxSeconds: Double = 20
+    public static let minSeconds: Double = 30
+    public static let maxSeconds: Double = 90
     public static let timeoutMs: Int = 30_000
     public static let settleMs: Int = 1_200
     public static let policyFile = "update-policy.json"
     public static let policyRef = "HEAD"
+    public static let githubHost = "github.com"
+    public static let unrestrictedMinimum = "0.0.0.0"
     public static let forcedUpdateMessage = "이 버전은 더 이상 사용할 수 없습니다. 업데이트하세요."
+    public static let apiTokenFileName = TokenResolver.fileName
 
     /// 새 사이트에 붙는 기본 점검 동작. 파라미터 없이 렌더링 건강도를 본다.
     public static func starterActions() -> [ActionSpec] {

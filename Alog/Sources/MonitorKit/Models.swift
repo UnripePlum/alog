@@ -111,6 +111,19 @@ public struct ScheduleConfig: Codable, Sendable, Hashable {
         self.minSeconds = minSeconds
         self.maxSeconds = maxSeconds
     }
+
+    /// 로그/설정에 쓰는 짧은 간격 문구. 60초 이상은 분으로.
+    public var intervalLabel: String {
+        let lo = min(minSeconds, maxSeconds)
+        let hi = max(minSeconds, maxSeconds)
+        if lo >= 60, hi >= 60 {
+            let a = Int((lo / 60).rounded())
+            let b = Int((hi / 60).rounded())
+            if a == b { return "\(a)분마다" }
+            return "\(a)~\(b)분마다"
+        }
+        return "\(Int(lo))~\(Int(hi))초마다"
+    }
 }
 
 /// 다지역 점검용 관측점. 지정한 프록시(HTTP CONNECT)로 트래픽을 내보내
@@ -130,32 +143,46 @@ public struct Vantage: Codable, Sendable, Hashable, Identifiable {
     }
 }
 
+/// 점검을 서버 실행기에 맡길지. URL이 비면 identity.checkAPIBaseURL을 쓴다.
+public struct RemoteEngineConfig: Codable, Sendable, Hashable {
+    public var enabled: Bool
+    public var baseURL: String
+
+    public init(enabled: Bool = true, baseURL: String = "") {
+        self.enabled = enabled
+        self.baseURL = baseURL
+    }
+}
+
 public struct AppConfig: Codable, Sendable, Hashable {
     public var targets: [Target]
     public var schedule: ScheduleConfig
     public var timeoutMs: Int
     public var settleMs: Int
-    public var vantages: [Vantage]   // 비어있으면 로컬에서 직접 점검
+    public var vantages: [Vantage]   // 로컬 브라우저 폴백일 때만 사용
+    public var remoteEngine: RemoteEngineConfig
 
     public init(
         targets: [Target],
         schedule: ScheduleConfig,
         timeoutMs: Int,
         settleMs: Int,
-        vantages: [Vantage] = []
+        vantages: [Vantage] = [],
+        remoteEngine: RemoteEngineConfig = RemoteEngineConfig()
     ) {
         self.targets = targets
         self.schedule = schedule
         self.timeoutMs = timeoutMs
         self.settleMs = settleMs
         self.vantages = vantages
+        self.remoteEngine = remoteEngine
     }
 
     enum CodingKeys: String, CodingKey {
-        case targets, schedule, timeoutMs, settleMs, vantages
+        case targets, schedule, timeoutMs, settleMs, vantages, remoteEngine
     }
 
-    // 기존 설정 파일(vantages 없음)과 하위 호환.
+    // 기존 설정 파일(vantages/remoteEngine 없음)과 하위 호환.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         targets = try c.decode([Target].self, forKey: .targets)
@@ -163,6 +190,8 @@ public struct AppConfig: Codable, Sendable, Hashable {
         timeoutMs = try c.decode(Int.self, forKey: .timeoutMs)
         settleMs = try c.decode(Int.self, forKey: .settleMs)
         vantages = try c.decodeIfPresent([Vantage].self, forKey: .vantages) ?? []
+        remoteEngine = try c.decodeIfPresent(RemoteEngineConfig.self, forKey: .remoteEngine)
+            ?? RemoteEngineConfig()
     }
 }
 

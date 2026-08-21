@@ -1,6 +1,23 @@
 import XCTest
 @testable import MonitorKit
 
+final class ScheduleConfigTests: XCTestCase {
+    func testIntervalLabelUsesMinutesWhenOverAMinute() {
+        let s = ScheduleConfig(minSeconds: 300, maxSeconds: 900)
+        XCTAssertEqual(s.intervalLabel, "5~15분마다")
+    }
+
+    func testDefaultIntervalLabelIsSeconds() {
+        let s = ScheduleConfig(minSeconds: Defaults.minSeconds, maxSeconds: Defaults.maxSeconds)
+        XCTAssertEqual(s.intervalLabel, "30~90초마다")
+    }
+
+    func testIntervalLabelKeepsSecondsWhenUnderAMinute() {
+        let s = ScheduleConfig(minSeconds: 10, maxSeconds: 20)
+        XCTAssertEqual(s.intervalLabel, "10~20초마다")
+    }
+}
+
 final class RotationCursorTests: XCTestCase {
     func testRoundRobinIncrements() {
         let cursor = RotationCursor()
@@ -36,15 +53,69 @@ final class AppIdentityTests: XCTestCase {
         let id = try AppIdentity.loadBundled()
         XCTAssertEqual(id.displayName, "Alog")
         XCTAssertEqual(id.executableName, "Alog")
-        XCTAssertEqual(id.bundleIdentifier, "io.muinlab.alog")
+        XCTAssertEqual(id.bundleIdentifier, "com.unripeplum.alog")
         XCTAssertEqual(id.supportDirectoryName, "Alog")
         XCTAssertEqual(id.bundleFileName, "Alog")
         XCTAssertEqual(id.githubOwner, "UnripePlum")
         XCTAssertEqual(id.githubRepo, "alog")
         XCTAssertEqual(id.policyFile, "update-policy.json")
         XCTAssertEqual(id.policyRef, "HEAD")
+        XCTAssertEqual(id.developerName, "UnripePlum")
+        XCTAssertEqual(id.organization, "")
+        XCTAssertEqual(id.copyright, "Copyright © 2026 UnripePlum")
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("SiteMonitor"))
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("WebVisitor"))
+        XCTAssertEqual(id.repositoryLabel, "UnripePlum/alog")
+        XCTAssertEqual(id.repositoryURL?.host, Defaults.githubHost)
+        XCTAssertEqual(id.repositoryURL?.path, "/UnripePlum/alog")
+        XCTAssertEqual(id.resolvedHomepageURL, id.repositoryURL)
+        XCTAssertNil(id.supportMailURL)
+        XCTAssertEqual(id.checkAPIBaseURL, "https://alog.unripeplum.com")
+    }
+
+    func testMissingDeveloperFieldsDefaultEmpty() throws {
+        let json = """
+        {
+          "displayName":"X","executableName":"X","bundleIdentifier":"io.x",
+          "supportDirectoryName":"X","bundleFileName":"X",
+          "githubOwner":"o","githubRepo":"r"
+        }
+        """
+        let id = try JSONDecoder().decode(AppIdentity.self, from: Data(json.utf8))
+        XCTAssertEqual(id.developerName, "")
+        XCTAssertEqual(id.organization, "")
+        XCTAssertEqual(id.copyright, "")
+        XCTAssertEqual(id.homepageURL, "")
+        XCTAssertEqual(id.supportEmail, "")
+        XCTAssertEqual(id.checkAPIBaseURL, "")
+        XCTAssertEqual(id.policyFile, Defaults.policyFile)
+        XCTAssertEqual(id.repositoryURL?.path, "/o/r")
+    }
+
+    func testHomepageAndMailOverrideRepository() throws {
+        let id = AppIdentity(
+            displayName: "X",
+            executableName: "X",
+            bundleIdentifier: "io.x",
+            supportDirectoryName: "X",
+            bundleFileName: "X",
+            legacySupportDirectoryNames: [],
+            githubOwner: "o",
+            githubRepo: "r",
+            homepageURL: "https://example.com/app",
+            supportEmail: "dev@example.com"
+        )
+        XCTAssertEqual(id.resolvedHomepageURL?.absoluteString, "https://example.com/app")
+        XCTAssertEqual(id.supportMailURL?.scheme, "mailto")
+        XCTAssertEqual(id.supportMailURL?.path, "dev@example.com")
+    }
+
+    func testIdentityFilePrefersFirstExisting() {
+        let missing = URL(fileURLWithPath: "/tmp/alog-missing-identity.json")
+        let present = URL(fileURLWithPath: "/tmp/alog-present-identity.json")
+        let found = AppIdentity.firstExistingIdentityFile(in: [missing, present, present]) { $0 == present }
+        XCTAssertEqual(found, present)
+        XCTAssertNil(AppIdentity.firstExistingIdentityFile(in: [missing]) { _ in false })
     }
 }
 
@@ -81,7 +152,7 @@ final class ConfigStoreTests: XCTestCase {
         let identity = AppIdentity(
             displayName: "Alog",
             executableName: "Alog",
-            bundleIdentifier: "io.muinlab.alog",
+            bundleIdentifier: "com.unripeplum.alog",
             supportDirectoryName: "Alog",
             bundleFileName: "Alog",
             legacySupportDirectoryNames: ["SiteMonitor", "WebVisitor"],
