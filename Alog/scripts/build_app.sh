@@ -41,6 +41,9 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/${EXECUTABLE_NAME}"
 cp "$HERE/Info.plist" "$APP/Contents/Info.plist"
+if [[ -f "$HERE/Resources/AppIcon.icns" ]]; then
+  cp "$HERE/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
+fi
 
 VERSION_FILE="$HERE/../VERSION"
 if [[ -f "$VERSION_FILE" ]]; then
