@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0.0] - 2026-08-21
+
+### Changed
+- 앱 이름을 **Alog** 로 바꿨습니다. identity.json · 번들 · 설정 폴더 · GitHub 저장소가 모두 Alog입니다.
+- 예전 SiteMonitor / Web Visitor 설정은 첫 실행 때 `~/Library/Application Support/Alog/` 로 복사합니다.
+
 ## [0.3.0.0] - 2026-08-21
 
 ### Changed

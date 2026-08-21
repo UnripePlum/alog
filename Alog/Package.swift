@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "WebVisitor",
+    name: "Alog",
     platforms: [
         .macOS(.v26)
     ],
@@ -18,7 +18,7 @@ let package = Package(
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .executableTarget(
-            name: "WebVisitor",
+            name: "Alog",
             dependencies: ["MonitorKit"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),

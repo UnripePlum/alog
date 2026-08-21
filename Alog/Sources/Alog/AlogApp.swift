@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct WebVisitorApp: App {
+struct AlogApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var controller = MonitorController()
 

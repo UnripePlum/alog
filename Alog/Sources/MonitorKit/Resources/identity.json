@@ -1,0 +1,8 @@
+{
+  "displayName": "Alog",
+  "executableName": "Alog",
+  "bundleIdentifier": "io.muinlab.alog",
+  "supportDirectoryName": "Alog",
+  "bundleFileName": "Alog",
+  "legacySupportDirectoryNames": ["SiteMonitor", "WebVisitor"]
+}

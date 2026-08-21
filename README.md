@@ -1,4 +1,4 @@
-# Web Visitor
+# Alog
 
 백그라운드에서 **실제 브라우저(WebKit)** 로 페이지를 열어, 사이트가 살아 있는지 점검합니다.
 창을 닫아도 메뉴 막대에서 계속 돌고, 매 사이클 로드·제목·본문·스크롤을 확인한 뒤 로그로 남깁니다.
@@ -14,20 +14,20 @@
 
 ### 1) 릴리즈 zip (Xcode 없이)
 
-1. [Releases](https://github.com/UnripePlum/web-visitor/releases/latest)에서 `Web Visitor.zip`을 받습니다.
-2. 압축을 풀고 `Web Visitor.app`을 `/Applications`로 옮깁니다.
+1. [Releases](https://github.com/UnripePlum/alog/releases/latest)에서 `Alog.zip`을 받습니다.
+2. 압축을 풀고 `Alog.app`을 `/Applications`로 옮깁니다.
 3. **우클릭 → 열기** (서명·공증 전이라 Gatekeeper가 한 번 막습니다).
 4. 사이트 추가 (⌘N). 넣는 순간 실제 페이지를 열고 점검을 시작합니다.
 
-CI가 같은 스크립트(`WebVisitor/scripts/build_app.sh`)로 zip을 만듭니다.
+CI가 같은 스크립트(`Alog/scripts/build_app.sh`)로 zip을 만듭니다.
 
 ### 2) 소스에서 빌드 (재현용)
 
 Xcode 또는 Swift toolchain이 있는 맥:
 
 ```bash
-git clone https://github.com/UnripePlum/web-visitor.git
-cd web-visitor
+git clone https://github.com/UnripePlum/alog.git
+cd alog
 chmod +x install.sh
 ./install.sh
 ```
@@ -35,18 +35,18 @@ chmod +x install.sh
 또는:
 
 ```bash
-cd WebVisitor
+cd Alog
 swift test
 ./scripts/build_app.sh
-open "dist/Web Visitor.app"
+open dist/Alog.app
 ```
 
-표시 이름·번들 id·설정 폴더는 `WebVisitor/Sources/MonitorKit/Resources/identity.json` 한 곳입니다.
+표시 이름·번들 id·설정 폴더는 `Alog/Sources/MonitorKit/Resources/identity.json` 한 곳입니다.
 
-설정: `~/Library/Application Support/WebVisitor/config.json`  
+설정: `~/Library/Application Support/Alog/config.json`  
 로그: 같은 폴더의 `monitor.log`
 
-예전에 SiteMonitor로 쓰던 설정은 첫 실행 때 이 폴더로 복사합니다. 다른 사람 사이트 URL은 기본값으로 넣지 않습니다.
+예전에 SiteMonitor / Web Visitor로 쓰던 설정은 첫 실행 때 이 폴더로 복사합니다. 다른 사람 사이트 URL은 기본값으로 넣지 않습니다.
 
 ### 살아있음 판정 팁
 `html`, `body`처럼 에러 페이지에도 있는 요소로 확인하면, 사이트가 죽어도 "정상"으로 잡힙니다.

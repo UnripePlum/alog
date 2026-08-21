@@ -6,8 +6,8 @@ config.yaml
 logs/
 
 # Swift
-WebVisitor/.build/
-WebVisitor/dist/
+Alog/.build/
+Alog/dist/
 .swiftpm/
 
 # OMC operational state
@@ -15,7 +15,7 @@ WebVisitor/dist/
 .omc/sessions/
 .omc/logs/
 .omc/project-memory.json
-WebVisitor/.omc/
+Alog/.omc/
 .DS_Store
 .codegraph
 .omo/

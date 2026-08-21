@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Web Visitor.app 번들 생성 (재현 가능한 로컬 빌드).
+# Alog.app 번들 생성 (재현 가능한 로컬 빌드).
 # 사용: scripts/build_app.sh [출력디렉터리]
 # 이름/실행파일은 Sources/MonitorKit/Resources/identity.json 에서 읽는다.
 set -euo pipefail

@@ -32,21 +32,22 @@ final class TargetCodableTests: XCTestCase {
 }
 
 final class AppIdentityTests: XCTestCase {
-    func testBundledIdentityIsWebVisitor() throws {
+    func testBundledIdentityIsAlog() throws {
         let id = try AppIdentity.loadBundled()
-        XCTAssertEqual(id.displayName, "Web Visitor")
-        XCTAssertEqual(id.executableName, "WebVisitor")
-        XCTAssertEqual(id.bundleIdentifier, "io.muinlab.webvisitor")
-        XCTAssertEqual(id.supportDirectoryName, "WebVisitor")
-        XCTAssertEqual(id.bundleFileName, "Web Visitor")
+        XCTAssertEqual(id.displayName, "Alog")
+        XCTAssertEqual(id.executableName, "Alog")
+        XCTAssertEqual(id.bundleIdentifier, "io.muinlab.alog")
+        XCTAssertEqual(id.supportDirectoryName, "Alog")
+        XCTAssertEqual(id.bundleFileName, "Alog")
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("SiteMonitor"))
+        XCTAssertTrue(id.legacySupportDirectoryNames.contains("WebVisitor"))
     }
 }
 
 final class ConfigStoreTests: XCTestCase {
     private func tempURL() -> URL {
         FileManager.default.temporaryDirectory
-            .appendingPathComponent("WebVisitorTest-\(UUID().uuidString)")
+            .appendingPathComponent("AlogTest-\(UUID().uuidString)")
             .appendingPathComponent("config.json")
     }
 
@@ -68,20 +69,20 @@ final class ConfigStoreTests: XCTestCase {
 
     func testMigratesLegacySupportFolderOnce() throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("WebVisitorMigrate-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("AlogMigrate-\(UUID().uuidString)", isDirectory: true)
         let fm = FileManager.default
         try fm.createDirectory(at: root.appendingPathComponent("SiteMonitor"), withIntermediateDirectories: true)
         let old = root.appendingPathComponent("SiteMonitor/config.json")
         try Data("{\"ok\":true}".utf8).write(to: old)
         let identity = AppIdentity(
-            displayName: "Web Visitor",
-            executableName: "WebVisitor",
-            bundleIdentifier: "io.muinlab.webvisitor",
-            supportDirectoryName: "WebVisitor",
-            bundleFileName: "Web Visitor",
-            legacySupportDirectoryNames: ["SiteMonitor"]
+            displayName: "Alog",
+            executableName: "Alog",
+            bundleIdentifier: "io.muinlab.alog",
+            supportDirectoryName: "Alog",
+            bundleFileName: "Alog",
+            legacySupportDirectoryNames: ["SiteMonitor", "WebVisitor"]
         )
-        let newURL = root.appendingPathComponent("WebVisitor/config.json")
+        let newURL = root.appendingPathComponent("Alog/config.json")
         ConfigStore.migrateLegacyConfigIfNeeded(
             newConfigURL: newURL, fileManager: fm, identity: identity)
         XCTAssertEqual(try String(contentsOf: newURL, encoding: .utf8), "{\"ok\":true}")
@@ -96,7 +97,7 @@ final class ConfigStoreTests: XCTestCase {
 final class JSONLLoggerTests: XCTestCase {
     func testLogWritesGroupedJSONL() throws {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("WebVisitorLog-\(UUID().uuidString)")
+            .appendingPathComponent("AlogLog-\(UUID().uuidString)")
             .appendingPathComponent("monitor.log")
         let logger = JSONLLogger(url: url)
 

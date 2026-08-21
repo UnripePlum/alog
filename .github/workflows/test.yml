@@ -20,15 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Swift tests
-        working-directory: WebVisitor
+        working-directory: Alog
         run: swift test
       - name: Build .app
-        working-directory: WebVisitor
+        working-directory: Alog
         run: ./scripts/build_app.sh
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: Web-Visitor-app
+          name: Alog-app
           path: |
-            WebVisitor/dist/Web Visitor.app
-            WebVisitor/dist/Web Visitor.zip
+            Alog/dist/Alog.app
+            Alog/dist/Alog.zip

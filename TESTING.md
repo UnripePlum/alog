@@ -4,8 +4,8 @@
 
 ## Commands
 - Python unit tests: `python -m pytest` (deps: `requirements-dev.txt`)
-- Swift engine tests: `cd WebVisitor && swift test`
-- macOS app bundle: `cd WebVisitor && ./scripts/build_app.sh`
+- Swift engine tests: `cd Alog && swift test`
+- macOS app bundle: `cd Alog && ./scripts/build_app.sh`
 
 ## Layers
 - **Unit:** `MonitorKit` (TargetFactory, ConfigStore, ActionJS, logger) and `tests/` for the Python CLI.
@@ -13,6 +13,6 @@
 - **Manual:** first-run empty window → 사이트 추가 (⌘N) → URL → 대상이 목록에 생기고 기본 점검 동작 4개가 붙는지.
 
 ## Conventions
-- Swift tests live in `WebVisitor/Tests/MonitorKitTests/`.
+- Swift tests live in `Alog/Tests/MonitorKitTests/`.
 - Python tests live in `tests/test_*.py`.
 - New functions get a corresponding test. Bug fixes get a regression test.
