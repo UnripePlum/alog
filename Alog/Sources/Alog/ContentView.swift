@@ -27,7 +27,16 @@ struct ContentView: View {
             }
         }
         .onChange(of: controller.config) { _, _ in controller.save() }
+        .onChange(of: updates.isBlocked) { _, blocked in
+            if blocked { controller.stopAll() }
+        }
         .onAppear { controller.runSelfTestIfRequested() }
+        .overlay {
+            if case .blocked(let minimum, _, let message) = updates.status {
+                ForcedUpdateView(minimum: minimum, message: message)
+                    .environmentObject(updates)
+            }
+        }
         .alert(
             updateAlertTitle,
             isPresented: updateAlertPresented

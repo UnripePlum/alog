@@ -6,5 +6,7 @@
   "bundleFileName": "Alog",
   "legacySupportDirectoryNames": ["SiteMonitor", "WebVisitor"],
   "githubOwner": "UnripePlum",
-  "githubRepo": "alog"
+  "githubRepo": "alog",
+  "policyFile": "update-policy.json",
+  "policyRef": "HEAD"
 }

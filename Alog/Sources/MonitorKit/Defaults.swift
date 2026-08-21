@@ -7,6 +7,9 @@ public enum Defaults {
     public static let maxSeconds: Double = 20
     public static let timeoutMs: Int = 30_000
     public static let settleMs: Int = 1_200
+    public static let policyFile = "update-policy.json"
+    public static let policyRef = "HEAD"
+    public static let forcedUpdateMessage = "이 버전은 더 이상 사용할 수 없습니다. 업데이트하세요."
 
     /// 새 사이트에 붙는 기본 점검 동작. 파라미터 없이 렌더링 건강도를 본다.
     public static func starterActions() -> [ActionSpec] {

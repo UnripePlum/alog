@@ -41,6 +41,8 @@ final class AppIdentityTests: XCTestCase {
         XCTAssertEqual(id.bundleFileName, "Alog")
         XCTAssertEqual(id.githubOwner, "UnripePlum")
         XCTAssertEqual(id.githubRepo, "alog")
+        XCTAssertEqual(id.policyFile, "update-policy.json")
+        XCTAssertEqual(id.policyRef, "HEAD")
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("SiteMonitor"))
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("WebVisitor"))
     }

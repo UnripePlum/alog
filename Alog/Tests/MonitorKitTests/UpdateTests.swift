@@ -25,6 +25,60 @@ final class AppVersionTests: XCTestCase {
     }
 }
 
+final class SupportPolicyTests: XCTestCase {
+    func testZeroMinimumDoesNotBlock() {
+        let policy = SupportPolicy(minimumVersion: "0.0.0.0", message: "x")
+        XCTAssertEqual(
+            Compatibility.launchGate(current: AppVersion("0.5.0.0"), policy: policy),
+            .proceed
+        )
+    }
+
+    func testOlderThanMinimumIsBlocked() {
+        let policy = SupportPolicy(minimumVersion: "0.6.0.0", message: "업데이트하세요")
+        switch Compatibility.launchGate(current: AppVersion("0.5.0.0"), policy: policy) {
+        case .forceUpdate(let min, let msg):
+            XCTAssertEqual(min, AppVersion("0.6.0.0"))
+            XCTAssertEqual(msg, "업데이트하세요")
+        case .proceed:
+            XCTFail("should block")
+        }
+    }
+
+    func testMissingPolicyAllowsUse() {
+        XCTAssertEqual(Compatibility.launchGate(current: AppVersion("0.1.0"), policy: nil), .proceed)
+    }
+
+    func testParsesPolicyJSONDefaults() throws {
+        let json = Data("{}".utf8)
+        let policy = try JSONDecoder().decode(SupportPolicy.self, from: json)
+        XCTAssertEqual(policy.minimum, AppVersion("0.0.0.0"))
+        XCTAssertFalse(policy.message.isEmpty)
+    }
+
+    func testPolicyCheckerURLAndFetch() async throws {
+        let identity = AppIdentity(
+            displayName: "Alog",
+            executableName: "Alog",
+            bundleIdentifier: "io.muinlab.alog",
+            supportDirectoryName: "Alog",
+            bundleFileName: "Alog",
+            legacySupportDirectoryNames: [],
+            githubOwner: "UnripePlum",
+            githubRepo: "alog"
+        )
+        let raw = URL(string: "https://raw.example.test")!
+        let url = GitHubPolicyChecker.policyURL(rawBase: raw, identity: identity)
+        XCTAssertTrue(url.absoluteString.contains("UnripePlum/alog/HEAD/update-policy.json"))
+        let mock = MockHTTP()
+        mock.dataByURL[url] = Data(#"{"minimumVersion":"1.2.0","message":"must update"}"#.utf8)
+        let checker = GitHubPolicyChecker(http: mock, identity: identity, rawBase: raw)
+        let policy = try await checker.currentPolicy()
+        XCTAssertEqual(policy.minimum, AppVersion("1.2.0"))
+        XCTAssertEqual(policy.message, "must update")
+    }
+}
+
 final class GitHubReleaseParseTests: XCTestCase {
     private var identity: AppIdentity {
         AppIdentity(

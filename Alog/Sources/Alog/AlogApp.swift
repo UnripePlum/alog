@@ -13,8 +13,14 @@ struct AlogApp: App {
                 .environmentObject(updates)
                 .frame(minWidth: 780, minHeight: 540)
                 .onAppear {
-                    controller.resumeEnabled()
-                    Task { await updates.check(silent: true) }
+                    Task {
+                        await updates.check(silent: true)
+                        if updates.isBlocked {
+                            controller.stopAll()
+                        } else {
+                            controller.resumeEnabled()
+                        }
+                    }
                 }
         }
         .commands {
@@ -23,6 +29,7 @@ struct AlogApp: App {
                     controller.requestAddTarget()
                 }
                 .keyboardShortcut("n")
+                .disabled(updates.isBlocked)
             }
             CommandGroup(after: .appInfo) {
                 Button("업데이트 확인…") {

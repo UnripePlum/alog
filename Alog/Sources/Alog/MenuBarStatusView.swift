@@ -9,30 +9,37 @@ struct MenuBarStatusView: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        if controller.config.targets.isEmpty {
-            Text("점검 중인 사이트가 없습니다")
+        if updates.isBlocked {
+            Text("업데이트가 필요합니다")
+            Button("업데이트") {
+                Task { await updates.installAvailable() }
+            }
         } else {
-            ForEach(controller.config.targets) { target in
-                Button {
-                    controller.toggle(target.id)
-                } label: {
-                    Text(line(for: target))
+            if controller.config.targets.isEmpty {
+                Text("점검 중인 사이트가 없습니다")
+            } else {
+                ForEach(controller.config.targets) { target in
+                    Button {
+                        controller.toggle(target.id)
+                    } label: {
+                        Text(line(for: target))
+                    }
                 }
             }
-        }
-        Divider()
-        Button("창 열기") { openWindow(id: WindowID.main) }
-        Button("사이트 추가") {
-            openWindow(id: WindowID.main)
-            controller.requestAddTarget()
-        }
-        Divider()
-        Button("업데이트 확인") {
-            Task { await updates.check(silent: false) }
-        }
-        if case .available(let rel) = updates.status {
-            Button("\(rel.version.string) 설치") {
-                Task { await updates.installAvailable() }
+            Divider()
+            Button("창 열기") { openWindow(id: WindowID.main) }
+            Button("사이트 추가") {
+                openWindow(id: WindowID.main)
+                controller.requestAddTarget()
+            }
+            Divider()
+            Button("업데이트 확인") {
+                Task { await updates.check(silent: false) }
+            }
+            if case .available(let rel) = updates.status {
+                Button("\(rel.version.string) 설치") {
+                    Task { await updates.installAvailable() }
+                }
             }
         }
         Divider()

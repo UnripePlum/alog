@@ -106,6 +106,11 @@ struct SettingsView: View {
                             Task { await updates.installAvailable() }
                         }
                     }
+                    if case .blocked(_, _, _) = updates.status {
+                        Button("필수 업데이트 설치") {
+                            Task { await updates.installAvailable() }
+                        }
+                    }
                 }
             }
             .formStyle(.grouped)
@@ -127,6 +132,7 @@ struct SettingsView: View {
         case .checking: return "확인 중…"
         case .upToDate: return "최신 버전입니다."
         case .available(let rel): return "새 버전 \(rel.version.string)을 설치할 수 있습니다."
+        case .blocked(let min, _, _): return "최소 버전 \(min.string) 미만은 사용할 수 없습니다."
         case .downloading: return "받는 중… 끝나면 앱이 다시 시작됩니다."
         case .failed(let msg): return msg
         }
