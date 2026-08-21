@@ -1,0 +1,132 @@
+import SwiftUI
+import MonitorKit
+
+struct ContentView: View {
+    @EnvironmentObject var controller: MonitorController
+    @State private var selection: Target.ID?
+    @State private var showSettings = false
+
+    var body: some View {
+        NavigationSplitView {
+            sidebar
+        } detail: {
+            detail
+        }
+        .toolbar { primaryToolbar }
+        .sheet(isPresented: $showSettings) {
+            SettingsView().environmentObject(controller)
+        }
+        // 어떤 편집이든 즉시 디스크에 저장 (단일 진실원 유지)
+        .onChange(of: controller.config) { _, _ in controller.save() }
+        .onAppear { controller.runSelfTestIfRequested() }
+    }
+
+    // MARK: - 사이드바 (대상 목록)
+
+    private var sidebar: some View {
+        List(selection: $selection) {
+            Section("대상") {
+                ForEach(controller.config.targets) { target in
+                    HStack(spacing: 8) {
+                        // 실행 상태 표시(점) — 버튼 아님. 시작/중지는 상단 툴바에서 현재 대상 기준.
+                        Circle()
+                            .fill(controller.isRunning(target.id) ? Color.green : Color.secondary.opacity(0.4))
+                            .frame(width: 8, height: 8)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(target.name.isEmpty ? target.url : target.name)
+                            Text(controller.isRunning(target.id) ? "모니터링 중" : target.url)
+                                .font(.caption)
+                                .foregroundStyle(controller.isRunning(target.id) ? Color.green : Color.secondary)
+                                .lineLimit(1)
+                        }
+                    }
+                    .tag(Optional(target.id))
+                }
+                .onDelete { offsets in
+                    for i in offsets { controller.stop(controller.config.targets[i].id) }
+                    controller.config.targets.remove(atOffsets: offsets)
+                }
+            }
+        }
+        .navigationTitle("SiteMonitor")
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    let t = Target(name: "새 대상", url: "https://", actions: [])
+                    controller.config.targets.append(t)
+                    selection = t.id
+                } label: {
+                    Label("대상 추가", systemImage: "plus")
+                }
+            }
+        }
+    }
+
+    // MARK: - 디테일 (편집기 + 로그)
+
+    private var detail: some View {
+        VStack(spacing: 0) {
+            if let id = selection,
+               let index = controller.config.targets.firstIndex(where: { $0.id == id }) {
+                TargetEditorView(target: $controller.config.targets[index])
+            } else {
+                placeholder
+            }
+            Divider()
+            LogView(entries: controller.entries)
+                .frame(minHeight: 200)
+        }
+    }
+
+    private var placeholder: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "cursorarrow.rays")
+                .font(.largeTitle)
+                .foregroundStyle(.secondary)
+            Text("왼쪽에서 대상을 선택하거나 추가하세요")
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - 상단 툴바 (실행 제어)
+
+    @ToolbarContentBuilder
+    private var primaryToolbar: some ToolbarContent {
+        ToolbarItemGroup {
+            // 현재 보고 있는(선택된) 대상 시작/중지
+            let selectedRunning = selection.map { controller.isRunning($0) } ?? false
+            if selectedRunning {
+                Button {
+                    if let id = selection { controller.stop(id) }
+                } label: {
+                    Label("중지", systemImage: "stop.fill")
+                }
+                .tint(.red)
+            } else {
+                Button {
+                    if let id = selection { controller.start(id) }
+                } label: {
+                    Label("시작", systemImage: "play.fill")
+                }
+                .tint(.green)
+                .disabled(selection == nil)
+            }
+
+            // 선택한 대상 즉시 1회 점검
+            Button {
+                if let id = selection { controller.runOnceNow(id) }
+            } label: {
+                Label("즉시 점검", systemImage: "bolt.fill")
+            }
+            .disabled(selection == nil)
+
+            Button {
+                showSettings = true
+            } label: {
+                Label("설정", systemImage: "gearshape")
+            }
+        }
+    }
+}

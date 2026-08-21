@@ -1,0 +1,38 @@
+# 사이트 가동 모니터링 설정 예시 (redacted 템플릿)
+# 실제 사용 시 이 파일을 config.yaml 로 복사한 뒤 값을 채우세요.
+#   cp config.example.yaml config.yaml
+#
+# 대상/동작/간격 등 모든 환경값은 여기서만 정의합니다 (코드에 하드코딩 금지).
+
+targets:
+  - name: "example-home"
+    url: "https://example.com/"
+    # 매 사이클 아래 동작을 라운드로빈으로 하나씩 수행 (사이트 여러 부분 점검)
+    actions:
+      - type: check_selector      # 특정 요소가 렌더링됐는지
+        selector: "h1"
+      - type: check_text          # 특정 텍스트가 본문에 있는지
+        text: "Example Domain"
+      - type: scroll              # 스크롤(스크립트 동작 확인)
+        pixels: 600
+      - type: wait                # 동적 렌더 안정화 대기
+        ms: 500
+
+  # 여러 사이트를 두면 매 사이클 각각 점검됩니다.
+  # - name: "another"
+  #   url: "https://another.example.org/"
+  #   actions:
+  #     - type: check_selector
+  #       selector: "#main"
+
+schedule:
+  # 매 사이클 후 [min, max] 초 사이 랜덤 대기 (고정 시각 반복 회피)
+  min_seconds: 300
+  max_seconds: 900
+
+browser:
+  headless: true
+  timeout_ms: 30000
+
+logging:
+  file: "logs/monitor.log"   # JSON Lines 로 append

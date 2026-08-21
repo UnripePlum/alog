@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+config.yaml
+logs/
+
+# Swift
+SiteMonitorApp/.build/
+SiteMonitorApp/dist/
+.swiftpm/
+
+# OMC operational state
+.omc/state/
+.omc/sessions/
+.omc/logs/
+.DS_Store
+.codegraph
+.omo/
+.pytest_cache/

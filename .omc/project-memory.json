@@ -1,0 +1,242 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1783709537421,
+  "projectRoot": "/Users/unripeplum/projects/naver_user_macro",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Python",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "requirements.txt"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "pip",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "tests"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "SiteMonitorApp": {
+      "path": "SiteMonitorApp",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1783709537400,
+      "keyFiles": [
+        "Info.plist",
+        "Package.swift"
+      ]
+    },
+    "monitor": {
+      "path": "monitor",
+      "purpose": null,
+      "fileCount": 11,
+      "lastAccessed": 1783709537401,
+      "keyFiles": [
+        "__init__.py",
+        "__main__.py",
+        "actions.py",
+        "check.py",
+        "config.py"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 3,
+      "lastAccessed": 1783709537401,
+      "keyFiles": [
+        "test_actions.py",
+        "test_config.py",
+        "test_scheduler.py"
+      ]
+    },
+    "SiteMonitorApp/Tests": {
+      "path": "SiteMonitorApp/Tests",
+      "purpose": "Test files",
+      "fileCount": 0,
+      "lastAccessed": 1783709537402,
+      "keyFiles": []
+    },
+    "SiteMonitorApp/dist": {
+      "path": "SiteMonitorApp/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 0,
+      "lastAccessed": 1783709537402,
+      "keyFiles": []
+    },
+    "SiteMonitorApp/scripts": {
+      "path": "SiteMonitorApp/scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 1,
+      "lastAccessed": 1783709537403,
+      "keyFiles": [
+        "build_app.sh"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/MonitorController.swift",
+      "accessCount": 15,
+      "lastAccessed": 1783715608176,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/ContentView.swift",
+      "accessCount": 10,
+      "lastAccessed": 1783715522046,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/WebPageChecker.swift",
+      "accessCount": 9,
+      "lastAccessed": 1783715462846,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/SettingsView.swift",
+      "accessCount": 6,
+      "lastAccessed": 1783715558315,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/MonitorKit/Models.swift",
+      "accessCount": 5,
+      "lastAccessed": 1783715426235,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/MonitorKit/Logger.swift",
+      "accessCount": 4,
+      "lastAccessed": 1783715489441,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/LogView.swift",
+      "accessCount": 4,
+      "lastAccessed": 1783715496353,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/TargetEditorView.swift",
+      "accessCount": 3,
+      "lastAccessed": 1783358031414,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/MonitorKit/ActionJS.swift",
+      "accessCount": 3,
+      "lastAccessed": 1783358133453,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Tests/MonitorKitTests/EngineTests.swift",
+      "accessCount": 3,
+      "lastAccessed": 1783714929942,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/MonitorKit/Checker.swift",
+      "accessCount": 3,
+      "lastAccessed": 1783715433428,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Package.swift",
+      "accessCount": 2,
+      "lastAccessed": 1783356417382,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/Placeholder.swift",
+      "accessCount": 2,
+      "lastAccessed": 1783356546666,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 2,
+      "lastAccessed": 1783357117439,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/MonitorKit/Defaults.swift",
+      "accessCount": 2,
+      "lastAccessed": 1783358012240,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Tests/MonitorKitTests/ActionJSTests.swift",
+      "accessCount": 2,
+      "lastAccessed": 1783358050870,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/MonitorKit/RotationCursor.swift",
+      "accessCount": 1,
+      "lastAccessed": 1783356349560,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/MonitorKit/ConfigStore.swift",
+      "accessCount": 1,
+      "lastAccessed": 1783356379773,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Sources/SiteMonitor/SiteMonitorApp.swift",
+      "accessCount": 1,
+      "lastAccessed": 1783356582203,
+      "type": "file"
+    },
+    {
+      "path": "SiteMonitorApp/Info.plist",
+      "accessCount": 1,
+      "lastAccessed": 1783356653588,
+      "type": "file"
+    },
+    {
+      "path": "testsite/index.html",
+      "accessCount": 1,
+      "lastAccessed": 1783712029160,
+      "type": "file"
+    },
+    {
+      "path": "testsite/post.html",
+      "accessCount": 1,
+      "lastAccessed": 1783712056801,
+      "type": "file"
+    },
+    {
+      "path": "testsite/serve.sh",
+      "accessCount": 1,
+      "lastAccessed": 1783712067970,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

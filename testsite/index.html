@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>테스트 블로그 : 모니터링 픽스처</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #f5f6f8; font-family: -apple-system, sans-serif; }
+    /* 네이버 블로그처럼 실제 본문은 iframe(#mainFrame) 안에 있고, 바깥 문서 본문은 거의 비어있음 */
+    #wrap { max-width: 980px; margin: 0 auto; }
+    #mainFrame { display: block; width: 100%; height: 100vh; border: 0; }
+  </style>
+</head>
+<body>
+  <!-- 바깥 셸: 텍스트가 거의 없음 (프레임 인식 점검을 시험하기 위함) -->
+  <div id="wrap">
+    <iframe id="mainFrame" src="post.html" title="본문 프레임"></iframe>
+  </div>
+</body>
+</html>
