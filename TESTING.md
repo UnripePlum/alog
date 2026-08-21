@@ -3,7 +3,7 @@
 100% test coverage is the goal — tests make changes safe.
 
 ## Commands
-- Python unit tests: `pytest` (deps: `requirements-dev.txt`)
+- Python unit tests: `python -m pytest` (deps: `requirements-dev.txt`)
 - Swift engine tests: `cd SiteMonitorApp && swift test`
 - macOS app bundle: `cd SiteMonitorApp && ./scripts/build_app.sh`
 
