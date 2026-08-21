@@ -14,6 +14,8 @@ SiteMonitorApp/dist/
 .omc/state/
 .omc/sessions/
 .omc/logs/
+.omc/project-memory.json
+SiteMonitorApp/.omc/
 .DS_Store
 .codegraph
 .omo/

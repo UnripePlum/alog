@@ -27,4 +27,11 @@ cp "$HERE/Info.plist" "$APP/Contents/Info.plist"
 codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || \
   echo "경고: ad-hoc 코드서명 실패(무시 가능, Gatekeeper 우클릭 열기 필요)"
 
+ZIP="$OUT_DIR/SiteMonitor.zip"
+echo "==> zip: $ZIP"
+rm -f "$ZIP"
+ditto -c -k --keepParent "$APP" "$ZIP"
+
 echo "완료: $APP"
+echo "배포용: $ZIP"
+echo "다른 맥에서 처음 열 때: 우클릭 → 열기 (서명되지 않은 로컬 빌드)"
