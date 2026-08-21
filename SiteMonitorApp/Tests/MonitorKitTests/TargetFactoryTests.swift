@@ -23,9 +23,28 @@ final class TargetFactoryTests: XCTestCase {
     }
 
     func testRejectsInvalidURL() {
-        XCTAssertThrowsError(try factory.make(name: "x", url: "https://")) { error in
-            XCTAssertEqual(error as? TargetFactoryError, .invalidURL)
+        let invalid = [
+            "https://",
+            "mailto:foo@bar.com",
+            "https:/example.com",
+            "javascript:alert(1)",
+            "file:///tmp",
+            "ftp://example.com",
+            ".",
+            "https://.",
+            "https://user:pass@example.com",
+        ]
+        for url in invalid {
+            XCTAssertThrowsError(try factory.make(name: "x", url: url), url) { error in
+                XCTAssertEqual(error as? TargetFactoryError, .invalidURL, url)
+            }
         }
+    }
+
+    func testAcceptsLocalhostWithPort() throws {
+        let target = try factory.make(name: "", url: "localhost:8765")
+        XCTAssertEqual(target.url, "https://localhost:8765")
+        XCTAssertEqual(target.name, "localhost")
     }
 
     func testMakeUsesHostWhenNameBlank() throws {

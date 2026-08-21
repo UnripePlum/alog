@@ -4,7 +4,6 @@ import MonitorKit
 struct ContentView: View {
     @EnvironmentObject var controller: MonitorController
     @State private var selection: Target.ID?
-    @State private var showSettings = false
 
     var body: some View {
         NavigationSplitView {
@@ -13,12 +12,15 @@ struct ContentView: View {
             detail
         }
         .toolbar { primaryToolbar }
-        .sheet(isPresented: $showSettings) {
-            SettingsView().environmentObject(controller)
-        }
-        .sheet(isPresented: $controller.isAddSheetPresented) {
-            AddTargetSheet { target in
-                selection = controller.addTarget(target)
+        .sheet(item: $controller.presentedSheet) { sheet in
+            switch sheet {
+            case .settings:
+                SettingsView().environmentObject(controller)
+            case .add:
+                AddTargetSheet { id in
+                    selection = id
+                }
+                .environmentObject(controller)
             }
         }
         .onChange(of: controller.config) { _, _ in controller.save() }
@@ -47,9 +49,12 @@ struct ContentView: View {
                     .tag(Optional(target.id))
                 }
                 .onDelete { offsets in
-                    for i in offsets { controller.stop(controller.config.targets[i].id) }
+                    let deleted = Set(offsets.map { controller.config.targets[$0].id })
+                    for id in deleted { controller.stop(id) }
                     controller.config.targets.remove(atOffsets: offsets)
-                    selection = nil
+                    if let selection, deleted.contains(selection) {
+                        self.selection = nil
+                    }
                 }
             }
         }
@@ -125,7 +130,7 @@ struct ContentView: View {
             .disabled(selection == nil)
 
             Button {
-                showSettings = true
+                controller.requestSettings()
             } label: {
                 Label("설정", systemImage: "gearshape")
             }

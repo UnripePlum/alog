@@ -6,8 +6,14 @@ import MonitorKit
 /// 앱 상태 + 스케줄러 루프. 설정은 ConfigStore(JSON)에서 읽고 저장한다.
 @MainActor
 final class MonitorController: ObservableObject {
+    enum PresentedSheet: String, Identifiable {
+        case settings
+        case add
+        var id: String { rawValue }
+    }
+
     @Published var config: AppConfig
-    @Published var isAddSheetPresented = false
+    @Published var presentedSheet: PresentedSheet?
     @Published private(set) var runningIDs: Set<UUID> = []
     @Published private(set) var entries: [CheckRun] = []
 
@@ -27,21 +33,21 @@ final class MonitorController: ObservableObject {
     }
 
     func requestAddTarget() {
-        isAddSheetPresented = true
+        presentedSheet = .add
     }
 
-    /// 시트에서 만든 대상을 목록에 넣고 저장한다.
-    @discardableResult
-    func addTarget(_ target: Target) -> UUID {
-        config.targets.append(target)
-        save()
-        return target.id
+    func requestSettings() {
+        presentedSheet = .settings
     }
 
     /// 이름·URL로 대상을 만들어 추가한다. 유효하지 않으면 throw.
     @discardableResult
     func addTarget(name: String, url: String) throws -> UUID {
-        addTarget(try factory.make(name: name, url: url))
+        let target = try factory.make(name: name, url: url)
+        config.targets.append(target)
+        save()
+        presentedSheet = nil
+        return target.id
     }
 
     var logPath: String { logger.fileURL.path }

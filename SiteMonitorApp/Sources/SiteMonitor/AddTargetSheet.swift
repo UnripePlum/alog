@@ -1,15 +1,17 @@
 import SwiftUI
 import MonitorKit
 
-/// 이름·URL을 받아 사이트를 추가하는 시트. 생성 로직은 `TargetCreating` 계약에 위임.
+/// 이름·URL을 받아 사이트를 추가하는 시트. 생성은 컨트롤러의 `TargetCreating` 계약으로만 한다.
 struct AddTargetSheet: View {
-    var factory: any TargetCreating = DefaultTargetFactory()
-    var onCreated: (Target) -> Void
+    @EnvironmentObject var controller: MonitorController
+    var onCreated: (UUID) -> Void
 
-    @Environment(\.dismiss) private var dismiss
     @State private var name: String = ""
     @State private var url: String = ""
     @State private var errorText: String?
+    @FocusState private var focused: Field?
+
+    private enum Field { case name, url }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -22,9 +24,11 @@ struct AddTargetSheet: View {
             Form {
                 Section {
                     TextField("이름 (비우면 주소에서 채움)", text: $name)
+                        .focused($focused, equals: .name)
                     TextField("https://example.com", text: $url)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
+                        .focused($focused, equals: .url)
                 } footer: {
                     Text("본인이 운영하거나 모니터링 권한이 있는 사이트만 추가하세요.")
                 }
@@ -41,7 +45,7 @@ struct AddTargetSheet: View {
             Divider()
             HStack {
                 Spacer()
-                Button("취소") { dismiss() }
+                Button("취소") { controller.presentedSheet = nil }
                     .keyboardShortcut(.cancelAction)
                 Button("추가") { submit() }
                     .keyboardShortcut(.defaultAction)
@@ -49,14 +53,15 @@ struct AddTargetSheet: View {
             }
             .padding(12)
         }
-        .frame(width: 460, height: 280)
+        .frame(width: 460)
+        .frame(minHeight: 280)
+        .onAppear { focused = .url }
     }
 
     private func submit() {
         do {
-            let target = try factory.make(name: name, url: url)
-            onCreated(target)
-            dismiss()
+            let id = try controller.addTarget(name: name, url: url)
+            onCreated(id)
         } catch TargetFactoryError.emptyURL {
             errorText = "사이트 주소를 입력하세요."
         } catch TargetFactoryError.invalidURL {
