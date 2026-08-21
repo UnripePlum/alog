@@ -32,9 +32,9 @@ final class ConfigStoreTests: XCTestCase {
         let store = ConfigStore(url: tempURL())
         // 파일 없음 → starter (UUID는 매번 새로 생성되므로 구조로 비교)
         let cfg = store.loadOrStarter()
-        XCTAssertEqual(cfg.targets.count, 1)
-        XCTAssertEqual(cfg.targets.first?.url, "https://example.com/")
-        XCTAssertEqual(cfg.targets.first?.actions.count, 4)
+        XCTAssertEqual(cfg.targets.count, 0)
+        XCTAssertEqual(cfg.schedule.minSeconds, Defaults.minSeconds)
+        XCTAssertEqual(cfg.timeoutMs, Defaults.timeoutMs)
     }
 }
 

@@ -8,21 +8,20 @@ public enum Defaults {
     public static let timeoutMs: Int = 30_000
     public static let settleMs: Int = 1_200
 
-    /// 앱 최초 실행 시 보여줄 예시 설정.
+    /// 새 사이트에 붙는 기본 점검 동작. 파라미터 없이 렌더링 건강도를 본다.
+    public static func starterActions() -> [ActionSpec] {
+        [
+            ActionSpec(kind: .pageLoaded),
+            ActionSpec(kind: .hasTitle),
+            ActionSpec(kind: .bodyHasText),
+            ActionSpec(kind: .scrollToBottom),
+        ]
+    }
+
+    /// 앱 최초 실행 설정. 대상은 비움 — 사용자가 자기 사이트를 추가한다.
     public static func starterConfig() -> AppConfig {
         AppConfig(
-            targets: [
-                Target(
-                    name: "example",
-                    url: "https://example.com/",
-                    actions: [
-                        ActionSpec(kind: .pageLoaded),
-                        ActionSpec(kind: .hasTitle),
-                        ActionSpec(kind: .bodyHasText),
-                        ActionSpec(kind: .scrollToBottom),
-                    ]
-                )
-            ],
+            targets: [],
             schedule: ScheduleConfig(minSeconds: minSeconds, maxSeconds: maxSeconds),
             timeoutMs: timeoutMs,
             settleMs: settleMs
