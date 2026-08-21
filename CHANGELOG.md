@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0.0] - 2026-08-21
+
+### Changed
+- 앱 이름을 **Web Visitor** 로 바꿨습니다. 표시 이름·번들 id·설정 폴더는 `identity.json` 한 곳에서 읽습니다.
+- GitHub 저장소: `web-visitor`. 설치는 릴리즈 zip 또는 `./install.sh`.
+
+### Added
+- 예전 SiteMonitor 설정 폴더를 WebVisitor 폴더로 한 번 복사합니다.
+- 태그 `v*` 푸시 시 zip을 GitHub Release에 올리는 워크플로.
+
 ## [0.2.0.0] - 2026-08-21
 
 ### Added

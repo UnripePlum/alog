@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>SiteMonitor</string>
+    <string>WebVisitor</string>
     <key>CFBundleDisplayName</key>
-    <string>SiteMonitor</string>
+    <string>Web Visitor</string>
     <key>CFBundleIdentifier</key>
-    <string>io.muinlab.sitemonitor</string>
+    <string>io.muinlab.webvisitor</string>
     <key>CFBundleExecutable</key>
-    <string>SiteMonitor</string>
+    <string>WebVisitor</string>
     <key>CFBundleVersion</key>
-    <string>0.2.0.0</string>
+    <string>0.3.0.0</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.2.0</string>
+    <string>0.3.0</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>LSMinimumSystemVersion</key>

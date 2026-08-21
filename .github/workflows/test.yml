@@ -20,15 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Swift tests
-        working-directory: SiteMonitorApp
+        working-directory: WebVisitor
         run: swift test
       - name: Build .app
-        working-directory: SiteMonitorApp
+        working-directory: WebVisitor
         run: ./scripts/build_app.sh
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: SiteMonitor-app
+          name: Web-Visitor-app
           path: |
-            SiteMonitorApp/dist/SiteMonitor.app
-            SiteMonitorApp/dist/SiteMonitor.zip
+            WebVisitor/dist/Web Visitor.app
+            WebVisitor/dist/Web Visitor.zip

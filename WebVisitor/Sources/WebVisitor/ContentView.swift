@@ -58,7 +58,7 @@ struct ContentView: View {
                 }
             }
         }
-        .navigationTitle("SiteMonitor")
+        .navigationTitle(AppIdentity.current.displayName)
         .safeAreaInset(edge: .bottom) {
             Button {
                 controller.requestAddTarget()

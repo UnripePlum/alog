@@ -31,10 +31,22 @@ final class TargetCodableTests: XCTestCase {
     }
 }
 
+final class AppIdentityTests: XCTestCase {
+    func testBundledIdentityIsWebVisitor() throws {
+        let id = try AppIdentity.loadBundled()
+        XCTAssertEqual(id.displayName, "Web Visitor")
+        XCTAssertEqual(id.executableName, "WebVisitor")
+        XCTAssertEqual(id.bundleIdentifier, "io.muinlab.webvisitor")
+        XCTAssertEqual(id.supportDirectoryName, "WebVisitor")
+        XCTAssertEqual(id.bundleFileName, "Web Visitor")
+        XCTAssertTrue(id.legacySupportDirectoryNames.contains("SiteMonitor"))
+    }
+}
+
 final class ConfigStoreTests: XCTestCase {
     private func tempURL() -> URL {
         FileManager.default.temporaryDirectory
-            .appendingPathComponent("SiteMonitorTest-\(UUID().uuidString)")
+            .appendingPathComponent("WebVisitorTest-\(UUID().uuidString)")
             .appendingPathComponent("config.json")
     }
 
@@ -48,18 +60,43 @@ final class ConfigStoreTests: XCTestCase {
 
     func testLoadOrStarterFallsBack() {
         let store = ConfigStore(url: tempURL())
-        // 파일 없음 → starter (UUID는 매번 새로 생성되므로 구조로 비교)
         let cfg = store.loadOrStarter()
         XCTAssertEqual(cfg.targets.count, 0)
         XCTAssertEqual(cfg.schedule.minSeconds, Defaults.minSeconds)
         XCTAssertEqual(cfg.timeoutMs, Defaults.timeoutMs)
+    }
+
+    func testMigratesLegacySupportFolderOnce() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WebVisitorMigrate-\(UUID().uuidString)", isDirectory: true)
+        let fm = FileManager.default
+        try fm.createDirectory(at: root.appendingPathComponent("SiteMonitor"), withIntermediateDirectories: true)
+        let old = root.appendingPathComponent("SiteMonitor/config.json")
+        try Data("{\"ok\":true}".utf8).write(to: old)
+        let identity = AppIdentity(
+            displayName: "Web Visitor",
+            executableName: "WebVisitor",
+            bundleIdentifier: "io.muinlab.webvisitor",
+            supportDirectoryName: "WebVisitor",
+            bundleFileName: "Web Visitor",
+            legacySupportDirectoryNames: ["SiteMonitor"]
+        )
+        let newURL = root.appendingPathComponent("WebVisitor/config.json")
+        ConfigStore.migrateLegacyConfigIfNeeded(
+            newConfigURL: newURL, fileManager: fm, identity: identity)
+        XCTAssertEqual(try String(contentsOf: newURL, encoding: .utf8), "{\"ok\":true}")
+        // 두 번째 호출은 덮어쓰지 않음
+        try Data("new".utf8).write(to: newURL)
+        ConfigStore.migrateLegacyConfigIfNeeded(
+            newConfigURL: newURL, fileManager: fm, identity: identity)
+        XCTAssertEqual(try String(contentsOf: newURL, encoding: .utf8), "new")
     }
 }
 
 final class JSONLLoggerTests: XCTestCase {
     func testLogWritesGroupedJSONL() throws {
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("SiteMonitorLog-\(UUID().uuidString)")
+            .appendingPathComponent("WebVisitorLog-\(UUID().uuidString)")
             .appendingPathComponent("monitor.log")
         let logger = JSONLLogger(url: url)
 

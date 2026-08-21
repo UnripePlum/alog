@@ -2,8 +2,8 @@
 
 ## Testing
 - Python: `.venv/bin/python -m pytest` (or `pytest` after `pip install -r requirements-dev.txt`)
-- Swift: `cd SiteMonitorApp && swift test`
-- App bundle: `cd SiteMonitorApp && ./scripts/build_app.sh`
+- Swift: `cd WebVisitor && swift test`
+- App bundle: `cd WebVisitor && ./scripts/build_app.sh` 또는 루트 `./install.sh`
 
 See TESTING.md.
 

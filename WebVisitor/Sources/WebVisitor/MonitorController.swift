@@ -126,13 +126,12 @@ final class MonitorController: ObservableObject {
     /// 일반 사용에는 영향 없음.
     func runSelfTestIfRequested() {
         let env = ProcessInfo.processInfo.environment
-        guard let url = env["SITEMONITOR_SELFTEST_URL"] else { return }
-        let outPath = env["SITEMONITOR_SELFTEST_OUT"] ?? "/tmp/sitemonitor_selftest.txt"
-        let text = env["SITEMONITOR_SELFTEST_TEXT"] ?? ""
+        guard let url = env["WEBVISITOR_SELFTEST_URL"] else { return }
+        let outPath = env["WEBVISITOR_SELFTEST_OUT"] ?? "/tmp/webvisitor_selftest.txt"
+        let text = env["WEBVISITOR_SELFTEST_TEXT"] ?? ""
 
-        // 선택적 프록시(관측점) 지정: "host:port"
         var vantage: Vantage?
-        if let proxy = env["SITEMONITOR_SELFTEST_PROXY"] {
+        if let proxy = env["WEBVISITOR_SELFTEST_PROXY"] {
             let parts = proxy.split(separator: ":")
             if parts.count == 2, let port = Int(parts[1]) {
                 vantage = Vantage(name: "proxy", proxyHost: String(parts[0]), proxyPort: port)

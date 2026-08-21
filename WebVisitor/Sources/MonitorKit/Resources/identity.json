@@ -1,0 +1,8 @@
+{
+  "displayName": "Web Visitor",
+  "executableName": "WebVisitor",
+  "bundleIdentifier": "io.muinlab.webvisitor",
+  "supportDirectoryName": "WebVisitor",
+  "bundleFileName": "Web Visitor",
+  "legacySupportDirectoryNames": ["SiteMonitor"]
+}

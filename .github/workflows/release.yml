@@ -1,0 +1,29 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test and build
+        working-directory: WebVisitor
+        run: |
+          swift test
+          ./scripts/build_app.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Web-Visitor-app
+          path: WebVisitor/dist/Web Visitor.zip
+      - name: Attach zip to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: WebVisitor/dist/Web Visitor.zip
+          generate_release_notes: true

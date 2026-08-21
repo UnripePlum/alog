@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct SiteMonitorApp: App {
+struct WebVisitorApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var controller = MonitorController()
 

@@ -1,60 +1,62 @@
-# SiteMonitor — 사이트 가동 모니터링
+# Web Visitor
 
-설정한 웹사이트가 **정상적으로 살아있는지**, 백그라운드에서 **실제 브라우저(WebKit)로 페이지를 열어** 주기적으로 확인합니다.
-창을 닫아도 메뉴 막대에서 계속 돌고, 매 사이클 로드·제목·본문·스크롤을 점검한 뒤 로그로 남깁니다.
+백그라운드에서 **실제 브라우저(WebKit)** 로 페이지를 열어, 사이트가 살아 있는지 점검합니다.
+창을 닫아도 메뉴 막대에서 계속 돌고, 매 사이클 로드·제목·본문·스크롤을 확인한 뒤 로그로 남깁니다.
 
 > **정당한 용도 전용.** 조회수 조작, 봇 탐지 회피, 대량 트래픽 생성은 범위가 아닙니다.
 > 본인이 소유·운영하거나 모니터링 권한이 있는 사이트에만 쓰세요.
 
-## 두 가지 형태
+**다른 맥에서도 동일하게 돌아가야 합니다.** 머신 고유 경로·계정·사이트 URL은 코드에 없습니다.
 
-| | **Swift macOS 앱** (`SiteMonitorApp/`) | **Python CLI** (`monitor/`) |
-|---|---|---|
-| 대상 사용자 | GUI로 쓰는 일반 사용자 | 서버/터미널 자동화 |
-| 브라우저 엔진 | WebKit `WebPage` (OS 내장) | Playwright(Chromium) |
-| 최소 요구 | **macOS 26+** | Python 3.11+ |
-| 설정 | 앱에서 사이트 추가 (JSON 저장) | `config.yaml` |
-| 배포 | `SiteMonitor.app` / zip | pip 설치 |
+## 설치 (다른 컴퓨터)
 
----
+요구: **macOS 26+**. 그 이하는 WebKit `WebPage` API가 없어 실행되지 않습니다.
 
-## macOS 앱 — 설치
+### 1) 릴리즈 zip (Xcode 없이)
 
-### 소스에서 빌드 (권장, 재현 가능)
+1. [Releases](https://github.com/UnripePlum/web-visitor/releases/latest)에서 `Web Visitor.zip`을 받습니다.
+2. 압축을 풀고 `Web Visitor.app`을 `/Applications`로 옮깁니다.
+3. **우클릭 → 열기** (서명·공증 전이라 Gatekeeper가 한 번 막습니다).
+4. 사이트 추가 (⌘N). 넣는 순간 실제 페이지를 열고 점검을 시작합니다.
+
+CI가 같은 스크립트(`WebVisitor/scripts/build_app.sh`)로 zip을 만듭니다.
+
+### 2) 소스에서 빌드 (재현용)
+
+Xcode 또는 Swift toolchain이 있는 맥:
+
 ```bash
-git clone https://github.com/UnripePlum/sitemonitor.git
-cd sitemonitor/SiteMonitorApp
+git clone https://github.com/UnripePlum/web-visitor.git
+cd web-visitor
+chmod +x install.sh
+./install.sh
+```
+
+또는:
+
+```bash
+cd WebVisitor
 swift test
 ./scripts/build_app.sh
-open dist/SiteMonitor.app
-```
-산출물: `dist/SiteMonitor.app`, 배포용 `dist/SiteMonitor.zip`.
-
-처음 열 때 Gatekeeper가 막으면 **우클릭 → 열기**. (로컬 ad-hoc 서명. 타인 배포 시 Developer ID + 공증을 권장합니다.)
-
-`Applications`로 쓰려면:
-```bash
-cp -R dist/SiteMonitor.app /Applications/
+open "dist/Web Visitor.app"
 ```
 
-### 첫 실행
-1. 창이 비어 있으면 **사이트 추가** (⌘N) 또는 왼쪽 아래 버튼을 누릅니다.
-2. 이름(선택)과 주소를 넣습니다. `example.com`처럼 스킴이 없으면 `https://`를 붙입니다.
-3. 추가하는 순간 실제 페이지를 열고 점검을 시작합니다. 창을 닫아도 메뉴 막대에서 계속 돌아갑니다.
-4. **중지**로 그 사이트만 끄고, **즉시 점검**으로 지금 한 번 더 들어갑니다.
+표시 이름·번들 id·설정 폴더는 `WebVisitor/Sources/MonitorKit/Resources/identity.json` 한 곳입니다.
 
-설정: `~/Library/Application Support/SiteMonitor/config.json`  
-로그: 같은 폴더의 `monitor.log` (JSON Lines).
+설정: `~/Library/Application Support/WebVisitor/config.json`  
+로그: 같은 폴더의 `monitor.log`
 
-다른 사람의 블로그 URL은 기본값으로 들어가지 않습니다. 각자 자기 사이트를 추가합니다.
+예전에 SiteMonitor로 쓰던 설정은 첫 실행 때 이 폴더로 복사합니다. 다른 사람 사이트 URL은 기본값으로 넣지 않습니다.
 
 ### 살아있음 판정 팁
 `html`, `body`처럼 에러 페이지에도 있는 요소로 확인하면, 사이트가 죽어도 "정상"으로 잡힙니다.
-접속 실패(DNS·연결 실패)는 네비게이션 오류로 즉시 실패입니다. 고유 텍스트/요소를 확인 대상으로 쓰세요.
+접속 실패(DNS·연결 실패)는 즉시 실패입니다. 고유 텍스트/요소를 확인 대상으로 쓰세요.
 
 ---
 
-## Python CLI
+## Python CLI (서버/터미널)
+
+앱과 같은 점검이지만 Playwright를 씁니다.
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
@@ -62,22 +64,13 @@ pip install -r requirements.txt
 playwright install chromium
 cp config.example.yaml config.yaml
 python -m monitor --config config.yaml
-python -m monitor --config config.yaml --once
 ```
 
-테스트:
-```bash
-pip install -r requirements-dev.txt
-pytest
-```
-
-설정 스키마는 `config.example.yaml`. 로그는 `logging.file` 경로에 JSON Lines로 append.
+테스트: `pip install -r requirements-dev.txt && python -m pytest`
 
 ---
 
 ## 설계 원칙
-- 인터페이스 우선 · 모듈화: 설정 / 스케줄러 / 체커 / 동작 / 로거 / 대상 생성 계약을 분리.
-- 하드코딩 금지: 대상 URL·동작·주기는 설정에서 읽음. 앱은 빈 목록으로 시작합니다.
-- 재현성: 머신 고유값 없음. 위 절차만으로 빌드·실행.
-
-스펙: `.omc/specs/deep-interview-site-liveness-monitor.md`
+- 인터페이스 우선 · 모듈화
+- 하드코딩 금지: 대상 URL·동작·주기·앱 이름은 설정/identity에서 읽음
+- 재현성: 위 절차만으로 다른 맥에서 빌드·실행
