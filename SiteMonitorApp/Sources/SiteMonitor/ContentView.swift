@@ -16,7 +16,11 @@ struct ContentView: View {
         .sheet(isPresented: $showSettings) {
             SettingsView().environmentObject(controller)
         }
-        // 어떤 편집이든 즉시 디스크에 저장 (단일 진실원 유지)
+        .sheet(isPresented: $controller.isAddSheetPresented) {
+            AddTargetSheet { target in
+                selection = controller.addTarget(target)
+            }
+        }
         .onChange(of: controller.config) { _, _ in controller.save() }
         .onAppear { controller.runSelfTestIfRequested() }
     }
@@ -25,10 +29,9 @@ struct ContentView: View {
 
     private var sidebar: some View {
         List(selection: $selection) {
-            Section("대상") {
+            Section("사이트") {
                 ForEach(controller.config.targets) { target in
                     HStack(spacing: 8) {
-                        // 실행 상태 표시(점) — 버튼 아님. 시작/중지는 상단 툴바에서 현재 대상 기준.
                         Circle()
                             .fill(controller.isRunning(target.id) ? Color.green : Color.secondary.opacity(0.4))
                             .frame(width: 8, height: 8)
@@ -46,20 +49,21 @@ struct ContentView: View {
                 .onDelete { offsets in
                     for i in offsets { controller.stop(controller.config.targets[i].id) }
                     controller.config.targets.remove(atOffsets: offsets)
+                    selection = nil
                 }
             }
         }
         .navigationTitle("SiteMonitor")
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    let t = Target(name: "새 대상", url: "https://", actions: [])
-                    controller.config.targets.append(t)
-                    selection = t.id
-                } label: {
-                    Label("대상 추가", systemImage: "plus")
-                }
+        .safeAreaInset(edge: .bottom) {
+            Button {
+                controller.requestAddTarget()
+            } label: {
+                Label("사이트 추가", systemImage: "plus")
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
+            .padding(12)
         }
     }
 
@@ -70,8 +74,10 @@ struct ContentView: View {
             if let id = selection,
                let index = controller.config.targets.firstIndex(where: { $0.id == id }) {
                 TargetEditorView(target: $controller.config.targets[index])
+            } else if controller.config.targets.isEmpty {
+                EmptyTargetPlaceholder { controller.requestAddTarget() }
             } else {
-                placeholder
+                SelectTargetPlaceholder { controller.requestAddTarget() }
             }
             Divider()
             LogView(entries: controller.entries)
@@ -79,23 +85,20 @@ struct ContentView: View {
         }
     }
 
-    private var placeholder: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "cursorarrow.rays")
-                .font(.largeTitle)
-                .foregroundStyle(.secondary)
-            Text("왼쪽에서 대상을 선택하거나 추가하세요")
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    // MARK: - 상단 툴바 (실행 제어)
+    // MARK: - 상단 툴바 (추가 + 실행 제어)
 
     @ToolbarContentBuilder
     private var primaryToolbar: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                controller.requestAddTarget()
+            } label: {
+                Label("사이트 추가", systemImage: "plus")
+            }
+            .help("사이트 추가 (⌘N)")
+        }
+
         ToolbarItemGroup {
-            // 현재 보고 있는(선택된) 대상 시작/중지
             let selectedRunning = selection.map { controller.isRunning($0) } ?? false
             if selectedRunning {
                 Button {
@@ -114,7 +117,6 @@ struct ContentView: View {
                 .disabled(selection == nil)
             }
 
-            // 선택한 대상 즉시 1회 점검
             Button {
                 if let id = selection { controller.runOnceNow(id) }
             } label: {

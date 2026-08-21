@@ -7,20 +7,41 @@ import MonitorKit
 @MainActor
 final class MonitorController: ObservableObject {
     @Published var config: AppConfig
+    @Published var isAddSheetPresented = false
     @Published private(set) var runningIDs: Set<UUID> = []
     @Published private(set) var entries: [CheckRun] = []
 
     private let store: ConfigStore
     private let logger: JSONLLogger
+    private let factory: any TargetCreating
     private var loops: [UUID: Task<Void, Never>] = [:]
 
     private static let maxEntries = 200
 
-    init() {
+    init(factory: any TargetCreating = DefaultTargetFactory()) {
         let store = ConfigStore.defaultStore()
         self.store = store
+        self.factory = factory
         self.config = store.loadOrStarter()
         self.logger = JSONLLogger(url: store.logURL)
+    }
+
+    func requestAddTarget() {
+        isAddSheetPresented = true
+    }
+
+    /// 시트에서 만든 대상을 목록에 넣고 저장한다.
+    @discardableResult
+    func addTarget(_ target: Target) -> UUID {
+        config.targets.append(target)
+        save()
+        return target.id
+    }
+
+    /// 이름·URL로 대상을 만들어 추가한다. 유효하지 않으면 throw.
+    @discardableResult
+    func addTarget(name: String, url: String) throws -> UUID {
+        addTarget(try factory.make(name: name, url: url))
     }
 
     var logPath: String { logger.fileURL.path }
