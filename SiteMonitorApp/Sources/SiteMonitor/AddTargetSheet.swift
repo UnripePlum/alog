@@ -30,7 +30,7 @@ struct AddTargetSheet: View {
                         .autocorrectionDisabled()
                         .focused($focused, equals: .url)
                 } footer: {
-                    Text("본인이 운영하거나 모니터링 권한이 있는 사이트만 추가하세요.")
+                    Text("추가하면 바로 실제 페이지를 열고, 창을 닫아도 메뉴 막대에서 백그라운드 점검을 이어갑니다.")
                 }
 
                 if let errorText {

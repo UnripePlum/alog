@@ -21,6 +21,7 @@ final class MonitorController: ObservableObject {
     private let logger: JSONLLogger
     private let factory: any TargetCreating
     private var loops: [UUID: Task<Void, Never>] = [:]
+    private var activity: NSObjectProtocol?
 
     private static let maxEntries = 200
 
@@ -40,14 +41,25 @@ final class MonitorController: ObservableObject {
         presentedSheet = .settings
     }
 
-    /// 이름·URL로 대상을 만들어 추가한다. 유효하지 않으면 throw.
+    /// 이름·URL로 대상을 만들어 추가한다. 추가 즉시 실제 페이지 백그라운드 점검을 시작한다.
     @discardableResult
     func addTarget(name: String, url: String) throws -> UUID {
         let target = try factory.make(name: name, url: url)
         config.targets.append(target)
         save()
         presentedSheet = nil
+        start(target.id)
         return target.id
+    }
+
+    /// 켜져 있는 대상의 점검 루프를 다시 연다 (실행 시·창 재오픈).
+    func resumeEnabled() {
+        let ids = config.targets.filter(\.enabled).map(\.id)
+        for id in ids { start(id) }
+    }
+
+    func latestRun(matching target: Target) -> CheckRun? {
+        entries.first { $0.url == target.url && $0.targetName == (target.name.isEmpty ? target.url : target.name) }
     }
 
     var logPath: String { logger.fileURL.path }
@@ -62,21 +74,32 @@ final class MonitorController: ObservableObject {
     func isRunning(_ id: UUID) -> Bool { runningIDs.contains(id) }
     var anyRunning: Bool { !runningIDs.isEmpty }
 
-    /// 대상 하나의 독립 루프를 시작.
+    /// 대상 하나의 독립 루프를 시작. 즉시 실제 페이지를 연 뒤 랜덤 간격으로 반복.
     func start(_ id: UUID) {
+        guard let idx = config.targets.firstIndex(where: { $0.id == id }) else { return }
+        if !config.targets[idx].enabled {
+            config.targets[idx].enabled = true
+            save()
+        }
         guard !runningIDs.contains(id) else { return }
-        guard config.targets.contains(where: { $0.id == id }) else { return }
         runningIDs.insert(id)
+        retainActivity()
         loops[id] = Task { [weak self] in
             await self?.runLoop(for: id)
         }
     }
 
-    /// 대상 하나의 루프를 중지.
+    /// 대상 하나의 루프를 중지. 다음 실행에서도 자동으로 켜지지 않는다.
     func stop(_ id: UUID) {
+        if let idx = config.targets.firstIndex(where: { $0.id == id }),
+           config.targets[idx].enabled {
+            config.targets[idx].enabled = false
+            save()
+        }
         runningIDs.remove(id)
         loops[id]?.cancel()
         loops[id] = nil
+        if runningIDs.isEmpty { releaseActivity() }
     }
 
     func toggle(_ id: UUID) {
@@ -177,5 +200,21 @@ final class MonitorController: ObservableObject {
             entries.removeLast(entries.count - Self.maxEntries)
         }
         logger.log(run)
+    }
+
+    /// App Nap이 WebKit 점검을 멈추지 않게 한다. 루프가 돌 때만 유지.
+    private func retainActivity() {
+        guard activity == nil else { return }
+        activity = ProcessInfo.processInfo.beginActivity(
+            options: .userInitiated,
+            reason: "실제 웹페이지 백그라운드 점검"
+        )
+    }
+
+    private func releaseActivity() {
+        if let activity {
+            ProcessInfo.processInfo.endActivity(activity)
+            self.activity = nil
+        }
     }
 }

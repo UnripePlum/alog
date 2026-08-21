@@ -13,6 +13,24 @@ final class RotationCursorTests: XCTestCase {
     }
 }
 
+final class TargetCodableTests: XCTestCase {
+    func testLegacyJSONDefaultsEnabled() throws {
+        let json = """
+        {"id":"11111111-1111-1111-1111-111111111111","name":"n","url":"https://example.com/","actions":[]}
+        """
+        let target = try JSONDecoder().decode(Target.self, from: Data(json.utf8))
+        XCTAssertTrue(target.enabled)
+        XCTAssertEqual(target.url, "https://example.com/")
+    }
+
+    func testEnabledFalseRoundTrip() throws {
+        let original = Target(name: "x", url: "https://example.com/", actions: [], enabled: false)
+        let data = try JSONEncoder().encode(original)
+        let loaded = try JSONDecoder().decode(Target.self, from: data)
+        XCTAssertFalse(loaded.enabled)
+    }
+}
+
 final class ConfigStoreTests: XCTestCase {
     private func tempURL() -> URL {
         FileManager.default.temporaryDirectory

@@ -22,7 +22,7 @@ struct LogView: View {
             .padding(.vertical, 8)
 
             if entries.isEmpty {
-                Text("아직 점검 기록이 없습니다. 대상의 ▶ 버튼이나 ‘즉시 점검’을 눌러보세요.")
+                Text("백그라운드에서 실제 페이지를 연 결과가 여기 쌓입니다.")
                     .foregroundStyle(.secondary)
                     .font(.callout)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

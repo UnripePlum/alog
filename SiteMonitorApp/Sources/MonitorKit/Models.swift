@@ -71,12 +71,34 @@ public struct Target: Codable, Sendable, Hashable, Identifiable {
     public var name: String
     public var url: String
     public var actions: [ActionSpec]
+    /// false면 백그라운드 점검을 하지 않는다. 구 설정 파일에는 키가 없으면 true.
+    public var enabled: Bool
 
-    public init(id: UUID = UUID(), name: String, url: String, actions: [ActionSpec]) {
+    public init(
+        id: UUID = UUID(),
+        name: String,
+        url: String,
+        actions: [ActionSpec],
+        enabled: Bool = true
+    ) {
         self.id = id
         self.name = name
         self.url = url
         self.actions = actions
+        self.enabled = enabled
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, url, actions, enabled
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        url = try c.decode(String.self, forKey: .url)
+        actions = try c.decode([ActionSpec].self, forKey: .actions)
+        enabled = try c.decodeIfPresent(Bool.self, forKey: .enabled) ?? true
     }
 }
 

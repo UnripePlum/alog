@@ -40,7 +40,7 @@ struct ContentView: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(target.name.isEmpty ? target.url : target.name)
-                            Text(controller.isRunning(target.id) ? "모니터링 중" : target.url)
+                            Text(controller.isRunning(target.id) ? "백그라운드 점검 중" : target.url)
                                 .font(.caption)
                                 .foregroundStyle(controller.isRunning(target.id) ? Color.green : Color.secondary)
                                 .lineLimit(1)
