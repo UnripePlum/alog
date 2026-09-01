@@ -1,0 +1,15 @@
+{
+  "displayName": "Alog",
+  "executableName": "Alog",
+  "bundleIdentifier": "com.unripeplum.alog",
+  "supportDirectoryName": "Alog",
+  "bundleFileName": "Alog",
+  "legacySupportDirectoryNames": ["SiteMonitor", "WebVisitor"],
+  "githubOwner": "UnripePlum",
+  "githubRepo": "alog",
+  "policyFile": "update-policy.json",
+  "policyRef": "HEAD",
+  "developerName": "UnripePlum",
+  "copyright": "Copyright © 2026 UnripePlum",
+  "homepageURL": "https://alog.unripeplum.com"
+}

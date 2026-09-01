@@ -6,15 +6,19 @@ config.yaml
 logs/
 
 # Swift
-SiteMonitorApp/.build/
-SiteMonitorApp/dist/
+Alog/.build/
+Alog/dist/
 .swiftpm/
 
 # OMC operational state
 .omc/state/
 .omc/sessions/
 .omc/logs/
+.omc/project-memory.json
+Alog/.omc/
 .DS_Store
 .codegraph
 .omo/
 .pytest_cache/
+.vercel
+site/.vercel

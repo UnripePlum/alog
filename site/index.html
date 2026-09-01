@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alog</title>
+  <meta name="description" content="백그라운드에서 실제 브라우저로 사이트가 살아 있는지 점검합니다.">
+  <link rel="icon" href="app-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <img src="app-icon.png" alt="">
+      <div>
+        <h1 id="name">Alog</h1>
+        <p class="lead">창을 닫아도, 실제 페이지를 열어서 살아 있는지 봅니다.</p>
+      </div>
+    </header>
+
+    <div class="video-wrap">
+      <video
+        class="promo"
+        controls
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster="promo-poster.jpg"
+      >
+        <source src="promo.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <p class="lead">macOS 앱입니다. 배포본에는 사이트가 들어 있지 않습니다. 설치한 사람이 자기 주소를 넣습니다.</p>
+
+    <div class="actions">
+      <a class="btn primary" id="download" href="#">Alog.dmg 받기</a>
+      <a class="btn ghost" id="releases" href="#">릴리즈 노트</a>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>설치</h2>
+        <ol>
+          <li>dmg를 열고 <strong>Alog.app</strong>을 Applications로 끌어다 놓습니다.</li>
+          <li>처음엔 <strong>우클릭 → 열기</strong> (공증 전이라 macOS가 한 번 막습니다).</li>
+          <li>사이트 추가 (⌘N). 넣는 순간 이 맥의 브라우저로 실제 페이지를 엽니다.</li>
+        </ol>
+      </section>
+      <section class="card">
+        <h2>요구 사항</h2>
+        <p id="reqs">macOS 26 이상. 그 이하는 실행되지 않습니다.</p>
+      </section>
+      <section class="card">
+        <h2>용도</h2>
+        <p>본인이 소유·운영하거나 모니터링 권한이 있는 사이트만. 조회수 조작이나 봇 탐지 회피는 범위가 아닙니다.</p>
+      </section>
+    </div>
+
+    <p class="warn">이후 버전은 앱 설정 → 업데이트에서 GitHub Releases zip을 받아 교체합니다.</p>
+    <footer>
+      <span id="copy"></span>
+      · <a id="gh" href="#">GitHub</a>
+    </footer>
+  </main>
+  <script>
+    fetch("config.json")
+      .then((r) => r.json())
+      .then((c) => {
+        document.title = c.displayName;
+        document.getElementById("name").textContent = c.displayName;
+        document.getElementById("download").href = c.downloadURL;
+        document.getElementById("releases").href = c.releasesURL;
+        document.getElementById("gh").href = c.githubURL;
+        document.getElementById("copy").textContent = c.copyright;
+        document.getElementById("reqs").textContent =
+          c.minOS + " 이상. 그 이하는 실행되지 않습니다.";
+      });
+  </script>
+</body>
+</html>

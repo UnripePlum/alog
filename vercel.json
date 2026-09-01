@@ -1,0 +1,6 @@
+{
+  "buildCommand": "python3 scripts/sync_site_config.py",
+  "outputDirectory": "site",
+  "cleanUrls": true,
+  "framework": null
+}

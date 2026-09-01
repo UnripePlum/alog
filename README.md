@@ -1,81 +1,91 @@
-# SiteMonitor — 사이트 가동 모니터링 (Synthetic Monitoring)
+# Alog
 
-설정한 웹사이트가 **정상적으로 살아있는지** 실제 브라우저로 주기적으로 접속해 확인합니다.
-매 사이클 페이지 안의 서로 다른 동작(요소 확인·텍스트 확인·클릭·스크롤)을 돌아가며 수행해
-사이트의 여러 부분이 제대로 렌더링/동작하는지 점검하고, 결과를 로그로 남깁니다.
+백그라운드에서 **실제 브라우저(WebKit)** 로 페이지를 열어, 사이트가 살아 있는지 점검합니다.
+창을 닫아도 메뉴 막대에서 계속 돌고, 매 사이클 로드·제목·본문·스크롤을 확인한 뒤 로그로 남깁니다.
 
-> **정당한 용도 전용**입니다. 조회수 조작, 봇 탐지 회피, 대량 트래픽 생성은 **비목표(non-goal)** 이며
-> 이 프로젝트의 범위가 아닙니다. 본인이 소유/운영하거나 모니터링 권한이 있는 사이트에 사용하세요.
+> **정당한 용도 전용.** 조회수 조작, 봇 탐지 회피, 대량 트래픽 생성은 범위가 아닙니다.
+> 본인이 소유·운영하거나 모니터링 권한이 있는 사이트에만 쓰세요.
 
-## 두 가지 형태
+**다른 맥에서도 동일하게 돌아가야 합니다.** 머신 고유 경로·계정·사이트 URL은 코드에 없습니다.
 
-| | **Swift macOS 앱** (`SiteMonitorApp/`) | **Python CLI** (`monitor/`) |
-|---|---|---|
-| 대상 사용자 | 다운받아 GUI로 쓰는 일반 사용자 | 서버/터미널 자동화 |
-| 브라우저 엔진 | WebKit `WebPage` (OS 내장, 의존성 0) | Playwright(Chromium) |
-| 최소 요구 | **macOS 26+** | Python 3.11+ |
-| 설정 | 앱 UI에서 편집 (JSON 저장) | `config.yaml` |
-| 배포 | 단일 `.app` | pip 설치 |
+## 설치 (다른 컴퓨터)
 
----
+요구: **macOS 26+**. 그 이하는 WebKit `WebPage` API가 없어 실행되지 않습니다.
 
-## Swift macOS 앱
+### 1) 릴리즈 dmg (Xcode 없이)
 
-### 빌드 & 실행
+1. [Releases](https://github.com/UnripePlum/alog/releases/latest)에서 `Alog.dmg`를 받습니다.
+2. 디스크 이미지를 열고 `Alog.app`을 Applications로 끌어다 놓습니다.
+3. **우클릭 → 열기** (서명·공증 전이라 Gatekeeper가 한 번 막습니다).
+4. 사이트 추가 (⌘N). 넣는 순간 실제 페이지를 열고 점검을 시작합니다.
+5. 이후 버전은 앱의 **설정(⌘,) → 업데이트** 또는 메뉴 **업데이트 확인…** 으로 받습니다. 업데이트는 zip을 받아 현재 앱을 교체한 뒤 다시 시작합니다.
+6. 버전·개발자 정보는 **Alog → 정보** 또는 **설정 → 정보**에서 볼 수 있습니다.
+
+구버전을 막으려면 저장소 루트 `update-policy.json`의 `minimumVersion`을 올리면 됩니다. 현재 버전이 그보다 낮으면 점검을 멈추고 GitHub Releases의 **최신** zip을 바로 받습니다. 지금은 `0.0.0.0`이라 아무도 막지 않습니다. 설정 → 업데이트에서 최소·현재·최신을 볼 수 있습니다.
+
+CI가 같은 스크립트(`Alog/scripts/build_app.sh`)로 zip을 만듭니다.
+
+### 다운로드 사이트 (Vercel)
+
+정적 랜딩은 `site/` 입니다. 설치용은 GitHub Releases의 `Alog.dmg`이고, 사이트는 그 링크만 겁니다. 배포하는 사람 사이트 목록은 들어가지 않습니다. 앱 안 업데이트는 계속 zip을 씁니다.
+
 ```bash
-cd SiteMonitorApp
-swift test                 # 엔진 유닛 테스트
-./scripts/build_app.sh     # dist/SiteMonitor.app 생성 (ad-hoc 서명)
-open dist/SiteMonitor.app
+python3 scripts/sync_site_config.py
+npx vercel --prod --yes
 ```
-> 서명되지 않은 앱이라 처음 열 때 Gatekeeper가 막으면 **우클릭 → 열기**로 허용하세요.
-> 타인 배포 시에는 Developer ID 서명 + 공증(notarization)을 권장합니다.
 
-### 사용
-1. 왼쪽 **＋** 로 대상 추가 → 이름/URL 입력.
-2. **점검 동작**을 추가 (매 사이클 순환 수행):
-   - **요소 확인** / **클릭**: CSS 선택자 (예: `#main`, `.article-title`)
-   - **텍스트 확인**: 페이지에 있어야 할 실제 텍스트
-   - **스크롤** / **대기**
-3. 상단 **설정**에서 주기(랜덤 최소~최대 초)·타임아웃·안정화 대기 조정.
-4. **시작**으로 주기 모니터링, **즉시 점검**으로 1회 실행.
-5. 설정: `~/Library/Application Support/SiteMonitor/config.json`,
-   로그: 같은 폴더의 `monitor.log` (JSON Lines).
+첫 배포 후 도메인 `alog.unripeplum.com` 을 Vercel 프로젝트에 붙입니다. DNS는 Cloudflare에서 CNAME → `cname.vercel-dns.com` (프록시 켜도 됨).
 
-### ⚠️ 살아있음 판정 팁 (중요)
-`html`, `body`처럼 **에러 페이지에도 존재하는** 요소로 확인하면, 사이트가 죽어
-브라우저 에러 페이지가 떠도 "정상"으로 잡힙니다. 반드시 **정상 페이지에만 있는
-실제 콘텐츠**(고유 텍스트/요소)를 확인 대상으로 쓰세요. 접속 자체가 실패(DNS·연결 실패)하면
-네비게이션 오류로 즉시 실패 처리됩니다.
+### 2) 소스에서 빌드 (재현용)
+
+Xcode 또는 Swift toolchain이 있는 맥:
+
+```bash
+git clone https://github.com/UnripePlum/alog.git
+cd alog
+chmod +x install.sh
+./install.sh
+```
+
+또는:
+
+```bash
+cd Alog
+swift test
+./scripts/build_app.sh
+open dist/Alog.app
+```
+
+표시 이름·번들 id·설정 폴더·개발자 정보는 `Alog/Sources/MonitorKit/Resources/identity.json` 한 곳입니다.
+
+설정: `~/Library/Application Support/Alog/config.json`  
+로그: 같은 폴더의 `monitor.log`
+
+예전에 SiteMonitor / Web Visitor로 쓰던 설정은 첫 실행 때 이 폴더로 복사합니다. 다른 사람 사이트 URL은 기본값으로 넣지 않습니다.
+
+### 살아있음 판정 팁
+`html`, `body`처럼 에러 페이지에도 있는 요소로 확인하면, 사이트가 죽어도 "정상"으로 잡힙니다.
+접속 실패(DNS·연결 실패)는 즉시 실패입니다. 고유 텍스트/요소를 확인 대상으로 쓰세요.
 
 ---
 
-## Python CLI
+## Python CLI (서버/터미널)
 
-### 설치 & 실행
+앱과 같은 점검이지만 Playwright를 씁니다.
+
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-playwright install chromium         # 최초 1회 브라우저 다운로드
-cp config.example.yaml config.yaml  # 대상/동작/주기 편집
-python -m monitor --config config.yaml          # 주기 실행
-python -m monitor --config config.yaml --once   # 1회 실행
+playwright install chromium
+cp config.example.yaml config.yaml
+python -m monitor --config config.yaml
 ```
 
-### 테스트
-```bash
-pip install -r requirements-dev.txt
-pytest
-```
-
-설정 스키마는 `config.example.yaml` 참고. 로그는 `logging.file` 경로에 JSON Lines로 append.
+테스트: `pip install -r requirements-dev.txt && python -m pytest`
 
 ---
 
 ## 설계 원칙
-- **인터페이스 우선 · 모듈화**: 설정 로더 / 스케줄러 / 체커 / 동작 레지스트리 / 로거를 분리.
-- **하드코딩 금지**: 대상 URL·동작·주기 등은 전부 설정에서 읽음(코드에 없음).
-- **재현성**: 머신 고유값 미포함, 예시 설정 템플릿 제공, 위 절차만으로 부팅.
-- **비목표**: 알림·자동복구·다중 디바이스·조회수 조작·탐지 회피.
-
-전체 요구사항 스펙: `.omc/specs/deep-interview-site-liveness-monitor.md`
+- 인터페이스 우선 · 모듈화
+- 하드코딩 금지: 대상 URL·동작·주기·앱 이름은 설정/identity에서 읽음
+- 재현성: 위 절차만으로 다른 맥에서 빌드·실행

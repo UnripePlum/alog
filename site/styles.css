@@ -1,0 +1,133 @@
+:root {
+  --bg: #0e0f14;
+  --fg: #f4f1ea;
+  --muted: #9a958c;
+  --line: #2a2c34;
+  --accent: #6d4aff;
+  --accent-2: #3b5bff;
+  --card: #17181f;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
+  background: radial-gradient(1200px 600px at 80% -10%, #2a1a66 0%, transparent 50%), var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 64px 24px 80px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+header img {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: #fff;
+}
+
+h1 {
+  font-size: 2.1rem;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.lead {
+  font-size: 1.15rem;
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+.video-wrap {
+  margin: 8px 0 28px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+
+video.promo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 32px 0 48px;
+}
+
+a.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a.btn.primary {
+  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  color: #fff;
+}
+
+a.btn.ghost {
+  border: 1px solid var(--line);
+  color: var(--fg);
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.card p, .card ol {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.card ol { padding-left: 1.2rem; }
+.card li + li { margin-top: 6px; }
+
+.warn {
+  margin-top: 28px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+footer {
+  margin-top: 48px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+footer a { color: var(--muted); }
