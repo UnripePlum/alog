@@ -1,0 +1,9 @@
+{
+  "canvasWidth": 1920,
+  "canvasHeight": 1080,
+  "windowHeightRatio": 0.72,
+  "cornerRadiusPx": 28,
+  "shadowBlur": 64,
+  "shadowOffsetY": 22,
+  "shadowOpacity": 0.5
+}

@@ -6,13 +6,14 @@
   --accent: #6d4aff;
   --accent-2: #3b5bff;
   --card: #17181f;
+  --glow: #2a1a66;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
   font-family: "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
-  background: radial-gradient(1200px 600px at 80% -10%, #2a1a66 0%, transparent 50%), var(--bg);
+  background: radial-gradient(1200px 600px at 80% -10%, var(--glow) 0%, transparent 50%), var(--bg);
   color: var(--fg);
   line-height: 1.5;
   min-height: 100vh;
@@ -55,7 +56,7 @@ h1 {
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--line);
-  background: #000;
+  background: var(--bg);
   aspect-ratio: 16 / 9;
 }
 
