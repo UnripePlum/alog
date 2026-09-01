@@ -42,6 +42,17 @@ final class RemoteCheckCodecTests: XCTestCase {
 }
 
 final class RemoteEngineConfigTests: XCTestCase {
+    func testDefaultIsLocal() {
+        let cfg = RemoteEngineConfig()
+        XCTAssertTrue(cfg.localMode)
+        XCTAssertFalse(cfg.usesRemoteEngine)
+    }
+
+    func testMissingKeysDefaultLocal() throws {
+        let cfg = try JSONDecoder().decode(RemoteEngineConfig.self, from: Data("{}".utf8))
+        XCTAssertTrue(cfg.localMode)
+    }
+
     func testLegacyEnabledTrueMeansNotLocal() throws {
         let json = #"{"enabled":true,"baseURL":""}"#
         let cfg = try JSONDecoder().decode(RemoteEngineConfig.self, from: Data(json.utf8))

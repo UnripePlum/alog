@@ -22,7 +22,8 @@ public struct SupportPolicy: Codable, Equatable, Sendable {
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        minimumVersion = try c.decodeIfPresent(String.self, forKey: .minimumVersion) ?? "0.0.0.0"
+        minimumVersion = try c.decodeIfPresent(String.self, forKey: .minimumVersion)
+            ?? Defaults.unrestrictedMinimum
         message = try c.decodeIfPresent(String.self, forKey: .message) ?? Defaults.forcedUpdateMessage
     }
 }
@@ -33,14 +34,19 @@ public enum LaunchGate: Equatable, Sendable {
 }
 
 public enum Compatibility {
-    /// 정책이 없거나 최소 버전을 충족하면 사용 허용. 네트워크 실패는 호출 측에서 캐시로 처리.
+    /// 정책이 없거나 최소 버전을 충족하면 사용 허용. 최신 설치 여부는 UpdatePlan이 본다.
     public static func launchGate(current: AppVersion, policy: SupportPolicy?) -> LaunchGate {
-        guard let policy else { return .proceed }
-        if current < policy.minimum {
-            let msg = policy.message.isEmpty ? Defaults.forcedUpdateMessage : policy.message
-            return .forceUpdate(minimum: policy.minimum, message: msg)
+        switch UpdatePlan.evaluate(
+            current: current,
+            minimum: policy?.minimum,
+            latest: nil,
+            message: policy?.message ?? ""
+        ) {
+        case .required(let minimum, _, let message):
+            return .forceUpdate(minimum: minimum, message: message)
+        case .currentIsNewest, .optional:
+            return .proceed
         }
-        return .proceed
     }
 }
 

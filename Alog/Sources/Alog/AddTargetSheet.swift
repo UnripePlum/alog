@@ -31,6 +31,7 @@ struct AddTargetSheet: View {
                         .focused($focused, equals: .url)
                 } footer: {
                     Text("추가하면 바로 실제 페이지를 열고, 창을 닫아도 메뉴 막대에서 백그라운드 점검을 이어갑니다.")
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 if let errorText {

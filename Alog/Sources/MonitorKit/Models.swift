@@ -6,7 +6,7 @@ public enum ActionKind: String, Codable, CaseIterable, Sendable, Hashable {
     case hasTitle = "has_title"            // <title>이 비어있지 않은지
     case bodyHasText = "body_has_text"     // 실제 본문 텍스트가 렌더됐는지
     case scrollToBottom = "scroll_to_bottom" // 맨 아래까지 스크롤 가능한지
-    case pageLoaded = "page_loaded"        // document.readyState == complete
+    case pageLoaded = "page_loaded"        // document.readyState interactive or complete
 
     // 고급(파라미터 필요) — 특정 요소/텍스트 지정
     case checkSelector = "check_selector"  // 특정 요소가 렌더링됐는지
@@ -143,13 +143,12 @@ public struct Vantage: Codable, Sendable, Hashable, Identifiable {
     }
 }
 
-/// 로컬 모드면 이 맥 WebKit, 꺼지면 서버 실행기.
-/// URL이 비면 identity.checkAPIBaseURL을 쓴다.
+/// 예전 설정 파일 호환용. 점검은 항상 이 맥 WebKit이다.
 public struct RemoteEngineConfig: Codable, Sendable, Hashable {
     public var localMode: Bool
     public var baseURL: String
 
-    public init(localMode: Bool = false, baseURL: String = "") {
+    public init(localMode: Bool = true, baseURL: String = "") {
         self.localMode = localMode
         self.baseURL = baseURL
     }
@@ -168,7 +167,7 @@ public struct RemoteEngineConfig: Codable, Sendable, Hashable {
         } else if let enabled = try c.decodeIfPresent(Bool.self, forKey: .enabled) {
             localMode = !enabled
         } else {
-            localMode = false
+            localMode = true
         }
     }
 

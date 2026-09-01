@@ -41,6 +41,7 @@ struct LogRunRow: View {
                 Text("\(run.targetName) · \(run.vantageName)")
                     .font(.callout)
                     .lineLimit(1)
+                    .truncationMode(.tail)
                 Text("\(okCount)/\(run.items.count) 항목 정상")
                     .font(.caption)
                     .foregroundStyle(run.ok ? Color.secondary : Color.red)
@@ -51,9 +52,11 @@ struct LogRunRow: View {
                 Text(Self.timeFormatter.string(from: run.timestamp))
                     .font(.caption)
                     .monospacedDigit()
+                    .fixedSize()
                 Text("\(run.durationMs)ms")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .fixedSize()
             }
         }
         .padding(.horizontal, 12)
@@ -74,11 +77,13 @@ struct LogRunRow: View {
                     Text(item.detail)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.trailing)
                     Text("\(item.durationMs)ms")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
+                        .fixedSize()
                 }
             }
         }

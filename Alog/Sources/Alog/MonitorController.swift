@@ -48,6 +48,20 @@ final class MonitorController: ObservableObject {
         return target.id
     }
 
+    /// 점검 루프를 멈추고 목록에서 뺀다. 설정 파일에 바로 반영된다.
+    func remove(_ id: UUID) {
+        stop(id)
+        config.targets.removeAll { $0.id == id }
+    }
+
+    func remove(atOffsets offsets: IndexSet) {
+        let ids = offsets.compactMap { index -> UUID? in
+            guard config.targets.indices.contains(index) else { return nil }
+            return config.targets[index].id
+        }
+        for id in ids { remove(id) }
+    }
+
     /// 켜져 있는 대상의 점검 루프를 다시 연다 (실행 시·창 재오픈).
     func resumeEnabled() {
         let ids = config.targets.filter(\.enabled).map(\.id)
@@ -161,13 +175,8 @@ final class MonitorController: ObservableObject {
         WebPageChecker(timeoutMs: config.timeoutMs, settleMs: config.settleMs)
     }
 
-    /// 대상 1회 테스트. 로컬 모드면 기존 WebKit(관측점마다 1건).
-    /// 꺼져 있으면 서버 실행기가 출구를 고르고 결과는 1건.
+    /// 대상 1회 테스트. 이 맥 WebKit으로만 연다. 관측점이 있으면 각각 1건.
     private func checkOnce(_ target: Target) async {
-        if config.remoteEngine.usesRemoteEngine {
-            append(await runRemote(target))
-            return
-        }
         let checker = makeLocalChecker()
         let vantages: [Vantage?] = config.vantages.isEmpty
             ? [nil]
@@ -176,44 +185,6 @@ final class MonitorController: ObservableObject {
             let run = await checker.runCheck(target: target, vantage: v)
             append(run)
         }
-    }
-
-    private func runRemote(_ target: Target) async -> CheckRun {
-        let support = store.url.deletingLastPathComponent()
-        guard let base = RemoteChecker.resolvedBaseURL(
-            config: config.remoteEngine, identity: .current
-        ) else {
-            return remoteSetupFailure(target, "실행기 URL이 없습니다")
-        }
-        guard let token = TokenResolver.resolve(supportDirectory: support) else {
-            return remoteSetupFailure(
-                target,
-                "실행기 토큰이 없습니다. \(support.appendingPathComponent(TokenResolver.fileName).path)"
-            )
-        }
-        let checker = RemoteChecker(
-            baseURL: base,
-            token: token,
-            timeoutMs: config.timeoutMs,
-            settleMs: config.settleMs,
-            poster: URLSessionCheckPoster()
-        )
-        return await checker.runCheck(target: target, vantage: nil)
-    }
-
-    private func remoteSetupFailure(_ target: Target, _ detail: String) -> CheckRun {
-        let items = target.actions.map {
-            ActionOutcome(actionKind: $0.kind, ok: false, detail: detail, durationMs: 0)
-        }
-        return CheckRun(
-            timestamp: Date(),
-            targetName: target.name.isEmpty ? target.url : target.name,
-            url: target.url,
-            vantageName: "설정",
-            ok: false,
-            items: items,
-            durationMs: 0
-        )
     }
 
     /// 대상 하나의 독립 루프: 테스트 → 랜덤 간격 대기 → 반복.

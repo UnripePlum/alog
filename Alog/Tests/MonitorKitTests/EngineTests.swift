@@ -9,7 +9,7 @@ final class ScheduleConfigTests: XCTestCase {
 
     func testDefaultIntervalLabelIsSeconds() {
         let s = ScheduleConfig(minSeconds: Defaults.minSeconds, maxSeconds: Defaults.maxSeconds)
-        XCTAssertEqual(s.intervalLabel, "30~90초마다")
+        XCTAssertEqual(s.intervalLabel, "15~30초마다")
     }
 
     func testIntervalLabelKeepsSecondsWhenUnderAMinute() {
@@ -63,6 +63,7 @@ final class AppIdentityTests: XCTestCase {
         XCTAssertEqual(id.developerName, "UnripePlum")
         XCTAssertEqual(id.organization, "")
         XCTAssertEqual(id.copyright, "Copyright © 2026 UnripePlum")
+        XCTAssertEqual(id.homepageURL, "https://alog.unripeplum.com")
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("SiteMonitor"))
         XCTAssertTrue(id.legacySupportDirectoryNames.contains("WebVisitor"))
         XCTAssertEqual(id.repositoryLabel, "UnripePlum/alog")

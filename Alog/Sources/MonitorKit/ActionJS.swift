@@ -75,7 +75,7 @@ public enum ActionJS {
         case .pageLoaded:
             return .success(ActionPlan(
                 preDelayMs: 0,
-                script: "return document.readyState === 'complete';"
+                script: "return document.readyState === 'interactive' || document.readyState === 'complete';"
             ))
 
         case .checkSelector:

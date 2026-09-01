@@ -7,7 +7,7 @@
     <key>CFBundleDisplayName</key>
     <string>Alog</string>
     <key>CFBundleIdentifier</key>
-    <string>io.muinlab.alog</string>
+    <string>com.unripeplum.alog</string>
     <key>CFBundleExecutable</key>
     <string>Alog</string>
     <key>CFBundleIconFile</key>

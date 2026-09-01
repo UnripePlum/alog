@@ -2,11 +2,9 @@ import SwiftUI
 import AppKit
 import MonitorKit
 
-/// 최소 버전 미달. 점검은 막고 업데이트만 받는다.
+/// 최소 버전 미달. 점검은 막고 최신 zip을 받는다.
 struct ForcedUpdateView: View {
     @EnvironmentObject var updates: UpdateService
-    let minimum: AppVersion
-    let message: String
 
     var body: some View {
         VStack(spacing: 16) {
@@ -15,21 +13,26 @@ struct ForcedUpdateView: View {
                 .foregroundStyle(.orange)
             Text("이 버전은 더 이상 사용할 수 없습니다")
                 .font(.title2)
-            Text(message)
+            Text(updates.policyMessage)
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Text("최소 버전 \(minimum.string)  ·  현재 \(updates.currentVersionLabel)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            VersionTrioView(versions: updates.versions)
+                .padding(.vertical, 4)
             if case .downloading = updates.status {
-                ProgressView("받는 중…")
-            } else {
-                Button("업데이트") {
+                ProgressView("최신 버전 받는 중…")
+            } else if case .failed(let msg) = updates.status {
+                Text(msg)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                Button("최신 버전 다시 받기") {
                     Task { await updates.installAvailable() }
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+            } else {
+                ProgressView("최신 버전 확인 중…")
             }
             Button("종료") {
                 NSApplication.shared.terminate(nil)

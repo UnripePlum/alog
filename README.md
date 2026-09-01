@@ -12,17 +12,29 @@
 
 요구: **macOS 26+**. 그 이하는 WebKit `WebPage` API가 없어 실행되지 않습니다.
 
-### 1) 릴리즈 zip (Xcode 없이)
+### 1) 릴리즈 dmg (Xcode 없이)
 
-1. [Releases](https://github.com/UnripePlum/alog/releases/latest)에서 `Alog.zip`을 받습니다.
-2. 압축을 풀고 `Alog.app`을 `/Applications`로 옮깁니다.
+1. [Releases](https://github.com/UnripePlum/alog/releases/latest)에서 `Alog.dmg`를 받습니다.
+2. 디스크 이미지를 열고 `Alog.app`을 Applications로 끌어다 놓습니다.
 3. **우클릭 → 열기** (서명·공증 전이라 Gatekeeper가 한 번 막습니다).
 4. 사이트 추가 (⌘N). 넣는 순간 실제 페이지를 열고 점검을 시작합니다.
-5. 이후 버전은 앱의 **설정 → 버전 → 업데이트 확인** 또는 메뉴 **업데이트 확인…** 으로 받습니다. GitHub Releases zip을 받아 현재 앱을 교체한 뒤 다시 시작합니다.
+5. 이후 버전은 앱의 **설정(⌘,) → 업데이트** 또는 메뉴 **업데이트 확인…** 으로 받습니다. 업데이트는 zip을 받아 현재 앱을 교체한 뒤 다시 시작합니다.
+6. 버전·개발자 정보는 **Alog → 정보** 또는 **설정 → 정보**에서 볼 수 있습니다.
 
-구버전을 막으려면 저장소 루트 `update-policy.json`의 `minimumVersion`을 올리면 됩니다. 그 버전보다 낮은 앱은 점검을 멈추고 업데이트만 할 수 있습니다. 지금은 `0.0.0.0`이라 아무도 막지 않습니다.
+구버전을 막으려면 저장소 루트 `update-policy.json`의 `minimumVersion`을 올리면 됩니다. 현재 버전이 그보다 낮으면 점검을 멈추고 GitHub Releases의 **최신** zip을 바로 받습니다. 지금은 `0.0.0.0`이라 아무도 막지 않습니다. 설정 → 업데이트에서 최소·현재·최신을 볼 수 있습니다.
 
 CI가 같은 스크립트(`Alog/scripts/build_app.sh`)로 zip을 만듭니다.
+
+### 다운로드 사이트 (Vercel)
+
+정적 랜딩은 `site/` 입니다. 설치용은 GitHub Releases의 `Alog.dmg`이고, 사이트는 그 링크만 겁니다. 배포하는 사람 사이트 목록은 들어가지 않습니다. 앱 안 업데이트는 계속 zip을 씁니다.
+
+```bash
+python3 scripts/sync_site_config.py
+npx vercel --prod --yes
+```
+
+첫 배포 후 도메인 `alog.unripeplum.com` 을 Vercel 프로젝트에 붙입니다. DNS는 Cloudflare에서 CNAME → `cname.vercel-dns.com` (프록시 켜도 됨).
 
 ### 2) 소스에서 빌드 (재현용)
 
@@ -44,7 +56,7 @@ swift test
 open dist/Alog.app
 ```
 
-표시 이름·번들 id·설정 폴더는 `Alog/Sources/MonitorKit/Resources/identity.json` 한 곳입니다.
+표시 이름·번들 id·설정 폴더·개발자 정보는 `Alog/Sources/MonitorKit/Resources/identity.json` 한 곳입니다.
 
 설정: `~/Library/Application Support/Alog/config.json`  
 로그: 같은 폴더의 `monitor.log`

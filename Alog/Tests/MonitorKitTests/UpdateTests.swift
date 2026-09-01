@@ -25,6 +25,89 @@ final class AppVersionTests: XCTestCase {
     }
 }
 
+final class VersionPlanTests: XCTestCase {
+    private func release(_ version: String) -> AppRelease {
+        AppRelease(
+            version: AppVersion(version),
+            downloadURL: URL(string: "https://example.com/Alog.zip")!,
+            notes: ""
+        )
+    }
+
+    func testBelowMinimumInstallsLatest() {
+        let latest = release("0.7.0.0")
+        let plan = UpdatePlan.evaluate(
+            current: AppVersion("0.5.0.0"),
+            minimum: AppVersion("0.6.0.0"),
+            latest: latest,
+            message: "업데이트하세요"
+        )
+        guard case .required(let min, let rel, let msg) = plan else {
+            return XCTFail("expected required")
+        }
+        XCTAssertEqual(min, AppVersion("0.6.0.0"))
+        XCTAssertEqual(rel, latest)
+        XCTAssertEqual(msg, "업데이트하세요")
+        XCTAssertTrue(plan.shouldInstallLatest)
+        XCTAssertTrue(
+            VersionTrio(current: AppVersion("0.5.0.0"), minimum: AppVersion("0.6.0.0"), latest: latest.version)
+                .isBelowMinimum
+        )
+    }
+
+    func testBelowMinimumWithoutLatestCannotInstall() {
+        let plan = UpdatePlan.evaluate(
+            current: AppVersion("0.5.0.0"),
+            minimum: AppVersion("0.6.0.0"),
+            latest: nil,
+            message: ""
+        )
+        guard case .required(_, let rel, let msg) = plan else {
+            return XCTFail("expected required")
+        }
+        XCTAssertNil(rel)
+        XCTAssertEqual(msg, Defaults.forcedUpdateMessage)
+        XCTAssertFalse(plan.shouldInstallLatest)
+    }
+
+    func testAtOrAboveMinimumOptionalLatest() {
+        let latest = release("0.7.0.0")
+        let plan = UpdatePlan.evaluate(
+            current: AppVersion("0.6.0.0"),
+            minimum: AppVersion("0.6.0.0"),
+            latest: latest,
+            message: "x"
+        )
+        guard case .optional(let rel) = plan else {
+            return XCTFail("expected optional")
+        }
+        XCTAssertEqual(rel.version, AppVersion("0.7.0.0"))
+        XCTAssertFalse(plan.shouldInstallLatest)
+    }
+
+    func testCurrentIsNewest() {
+        let latest = release("0.6.0.0")
+        let plan = UpdatePlan.evaluate(
+            current: AppVersion("0.6.0.0"),
+            minimum: AppVersion(Defaults.unrestrictedMinimum),
+            latest: latest,
+            message: "x"
+        )
+        XCTAssertEqual(plan, .currentIsNewest)
+        XCTAssertFalse(plan.shouldInstallLatest)
+    }
+
+    func testNilMinimumIsUnrestricted() {
+        let plan = UpdatePlan.evaluate(
+            current: AppVersion("0.1.0.0"),
+            minimum: nil,
+            latest: nil,
+            message: "x"
+        )
+        XCTAssertEqual(plan, .currentIsNewest)
+    }
+}
+
 final class SupportPolicyTests: XCTestCase {
     func testZeroMinimumDoesNotBlock() {
         let policy = SupportPolicy(minimumVersion: "0.0.0.0", message: "x")
@@ -60,7 +143,7 @@ final class SupportPolicyTests: XCTestCase {
         let identity = AppIdentity(
             displayName: "Alog",
             executableName: "Alog",
-            bundleIdentifier: "io.muinlab.alog",
+            bundleIdentifier: "com.unripeplum.alog",
             supportDirectoryName: "Alog",
             bundleFileName: "Alog",
             legacySupportDirectoryNames: [],
@@ -84,7 +167,7 @@ final class GitHubReleaseParseTests: XCTestCase {
         AppIdentity(
             displayName: "Alog",
             executableName: "Alog",
-            bundleIdentifier: "io.muinlab.alog",
+            bundleIdentifier: "com.unripeplum.alog",
             supportDirectoryName: "Alog",
             bundleFileName: "Alog",
             legacySupportDirectoryNames: [],

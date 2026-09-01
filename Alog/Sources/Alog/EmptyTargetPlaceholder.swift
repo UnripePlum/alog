@@ -11,10 +11,13 @@ struct EmptyTargetPlaceholder: View {
                 .foregroundStyle(.secondary)
             Text("사이트를 추가하면 백그라운드에서 직접 들어갑니다")
                 .font(.title3)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Text("창을 닫아도 WebKit으로 실제 페이지를 열고 로드·제목·본문·스크롤을 점검합니다.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             Button {
                 onAdd()
             } label: {

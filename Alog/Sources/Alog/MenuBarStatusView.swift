@@ -10,9 +10,13 @@ struct MenuBarStatusView: View {
 
     var body: some View {
         if updates.isBlocked {
-            Text("업데이트가 필요합니다")
-            Button("업데이트") {
-                Task { await updates.installAvailable() }
+            Text("최소 버전 미달")
+            if case .downloading = updates.status {
+                Text("최신 버전 받는 중…")
+            } else {
+                Button("최신 버전 받기") {
+                    Task { await updates.installAvailable() }
+                }
             }
         } else {
             if controller.config.targets.isEmpty {
@@ -43,6 +47,8 @@ struct MenuBarStatusView: View {
             }
         }
         Divider()
+        Button("설정…") { openWindow(id: WindowID.settings) }
+        Divider()
         Button("종료") { NSApplication.shared.terminate(nil) }
     }
 
@@ -54,8 +60,4 @@ struct MenuBarStatusView: View {
         }
         return "\(mark) \(name)"
     }
-}
-
-enum WindowID {
-    static let main = "main"
 }

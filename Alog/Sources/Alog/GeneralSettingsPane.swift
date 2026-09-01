@@ -15,8 +15,8 @@ struct GeneralSettingsPane: View {
                     secondsField($controller.config.schedule.maxSeconds)
                 }
                 HStack(spacing: 6) {
+                    preset("30초", 15, 30)
                     preset("10초", 5, 15)
-                    preset("30초", 20, 40)
                     preset("1분", 45, 90)
                     preset("5분", 240, 360)
                 }
@@ -24,28 +24,6 @@ struct GeneralSettingsPane: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Section("실행기") {
-                Toggle("로컬 모드", isOn: $controller.config.remoteEngine.localMode)
-                if controller.config.remoteEngine.localMode {
-                    Text("이 맥에서 WebKit으로 직접 점검합니다. 아래 관측점(프록시)이 있으면 그걸 타고 나갑니다.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    TextField(
-                        "실행기 URL",
-                        text: $controller.config.remoteEngine.baseURL,
-                        prompt: Text(AppIdentity.current.checkAPIBaseURL)
-                    )
-                    .textContentType(.URL)
-                    .autocorrectionDisabled()
-                    Text("서버(\(AppIdentity.current.checkAPIBaseURL))에 점검을 맡깁니다. 토큰은 Application Support/\(AppIdentity.current.supportDirectoryName)/api-token 입니다.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
             }
 
             Section("브라우저") {
@@ -61,7 +39,6 @@ struct GeneralSettingsPane: View {
                 )
             }
 
-            if controller.config.remoteEngine.localMode {
             Section("관측점 (다지역 점검)") {
                 if controller.config.vantages.isEmpty {
                     Text("관측점이 없으면 로컬에서 직접 점검합니다. 프록시를 추가하면 각 대상을 관측점(지역)마다 점검합니다.")
@@ -102,7 +79,6 @@ struct GeneralSettingsPane: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-            }
             }
 
             Section("로그 파일") {

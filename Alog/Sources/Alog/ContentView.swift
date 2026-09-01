@@ -4,21 +4,21 @@ import MonitorKit
 struct ContentView: View {
     @EnvironmentObject var controller: MonitorController
     @EnvironmentObject var updates: UpdateService
+    @Environment(\.openWindow) private var openWindow
     @State private var selection: Target.ID?
+    @State private var pendingDeleteID: Target.ID?
 
     var body: some View {
         NavigationSplitView {
             sidebar
+                .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 340)
         } detail: {
             detail
         }
+        .navigationSplitViewStyle(.balanced)
         .toolbar { primaryToolbar }
         .sheet(item: $controller.presentedSheet) { sheet in
             switch sheet {
-            case .settings:
-                SettingsView()
-                    .environmentObject(controller)
-                    .environmentObject(updates)
             case .add:
                 AddTargetSheet { id in
                     selection = id
@@ -26,14 +26,22 @@ struct ContentView: View {
                 .environmentObject(controller)
             }
         }
-        .onChange(of: controller.config) { _, _ in controller.save() }
         .onChange(of: updates.isBlocked) { _, blocked in
             if blocked { controller.stopAll() }
         }
-        .onAppear { controller.runSelfTestIfRequested() }
+        .onAppear {
+            controller.runSelfTestIfRequested()
+            if selection == nil {
+                selection = controller.config.targets.first?.id
+            }
+        }
+        .onChange(of: controller.config.targets.map(\.id)) { _, ids in
+            if let selection, ids.contains(selection) { return }
+            self.selection = ids.first
+        }
         .overlay {
-            if case .blocked(let minimum, _, let message) = updates.status {
-                ForcedUpdateView(minimum: minimum, message: message)
+            if updates.isBlocked {
+                ForcedUpdateView()
                     .environmentObject(updates)
             }
         }
@@ -47,6 +55,27 @@ struct ContentView: View {
             Button("나중에", role: .cancel) { updates.dismissPrompt() }
         } message: {
             Text(updateAlertMessage)
+        }
+        .confirmationDialog(
+            "\(pendingDeleteName)을(를) 삭제할까요?",
+            isPresented: Binding(
+                get: { pendingDeleteID != nil },
+                set: { if !$0 { pendingDeleteID = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("삭제", role: .destructive) {
+                if let id = pendingDeleteID {
+                    controller.remove(id)
+                }
+                pendingDeleteID = nil
+            }
+            Button("취소", role: .cancel) {
+                pendingDeleteID = nil
+            }
+        }
+        .onDeleteCommand {
+            pendingDeleteID = selection
         }
     }
 
@@ -63,21 +92,23 @@ struct ContentView: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(target.name.isEmpty ? target.url : target.name)
+                                .lineLimit(1)
                             Text(controller.isRunning(target.id) ? "백그라운드 점검 중" : target.url)
                                 .font(.caption)
                                 .foregroundStyle(controller.isRunning(target.id) ? Color.green : Color.secondary)
                                 .lineLimit(1)
+                                .truncationMode(.middle)
                         }
                     }
                     .tag(Optional(target.id))
+                    .contextMenu {
+                        Button("삭제", role: .destructive) {
+                            pendingDeleteID = target.id
+                        }
+                    }
                 }
                 .onDelete { offsets in
-                    let deleted = Set(offsets.map { controller.config.targets[$0].id })
-                    for id in deleted { controller.stop(id) }
-                    controller.config.targets.remove(atOffsets: offsets)
-                    if let selection, deleted.contains(selection) {
-                        self.selection = nil
-                    }
+                    controller.remove(atOffsets: offsets)
                 }
             }
         }
@@ -102,7 +133,10 @@ struct ContentView: View {
             Group {
                 if let id = selection,
                    let index = controller.config.targets.firstIndex(where: { $0.id == id }) {
-                    TargetEditorView(target: $controller.config.targets[index])
+                    TargetEditorView(
+                        target: $controller.config.targets[index],
+                        onDelete: { pendingDeleteID = id }
+                    )
                 } else if controller.config.targets.isEmpty {
                     EmptyTargetPlaceholder { controller.requestAddTarget() }
                 } else {
@@ -155,10 +189,19 @@ struct ContentView: View {
             .disabled(selection == nil)
 
             Button {
-                controller.requestSettings()
+                openWindow(id: WindowID.settings)
             } label: {
                 Label("설정", systemImage: "gearshape")
             }
+            .help("설정 (⌘,)")
+
+            Button {
+                pendingDeleteID = selection
+            } label: {
+                Label("사이트 삭제", systemImage: "trash")
+            }
+            .help("선택한 사이트 삭제")
+            .disabled(selection == nil)
         }
     }
 
@@ -188,5 +231,13 @@ struct ContentView: View {
             return notes
         }
         return ""
+    }
+
+    private var pendingDeleteName: String {
+        guard let id = pendingDeleteID,
+              let target = controller.config.targets.first(where: { $0.id == id }) else {
+            return "이 사이트"
+        }
+        return target.name.isEmpty ? target.url : target.name
     }
 }

@@ -20,3 +20,5 @@ Alog/.omc/
 .codegraph
 .omo/
 .pytest_cache/
+.vercel
+site/.vercel
