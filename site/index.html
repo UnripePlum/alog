@@ -4,77 +4,74 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Alog</title>
-  <meta name="description" content="백그라운드에서 실제 브라우저로 사이트가 살아 있는지 점검합니다.">
+  <meta name="description" content="이 Mac의 WebKit으로 사이트가 살아 있는지 점검합니다.">
   <link rel="icon" href="app-icon.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <nav class="nav">
-    <div class="nav-inner">
+  <div class="page">
+    <header class="top">
       <a class="brand" href="./">
-        <img src="app-icon.png" alt="">
+        <img src="app-icon.png" width="22" height="22" alt="">
         <span data-bind="displayName">Alog</span>
       </a>
-      <div class="nav-links">
+      <nav>
         <a data-bind-href="githubURL">GitHub</a>
         <a data-bind-href="releasesURL">릴리즈</a>
-        <a class="btn primary sm" data-bind-href="downloadURL">다운로드</a>
-      </div>
-    </div>
-  </nav>
+      </nav>
+    </header>
 
-  <header class="hero">
-    <h1>창을 닫아도,<br>실제 페이지를 엽니다.</h1>
-    <p class="lead">본인이 운영하는 사이트가 살아 있는지, 이 Mac의 브라우저로 점검합니다. 주소는 설치한 사람이 넣습니다.</p>
-    <div class="hero-actions">
-      <a class="btn primary lg" id="download" href="#">
-        <span>macOS용 다운로드</span>
-      </a>
-      <a class="btn ghost lg" data-bind-href="releasesURL">릴리즈 노트</a>
-    </div>
-    <p class="meta" id="reqs"></p>
-  </header>
+    <main>
+      <section class="intro">
+        <h1>이 맥의 브라우저로<br>사이트가 살아 있는지 봅니다.</h1>
+        <p class="dek">창을 닫아도 WebKit이 실제 페이지를 엽니다. 넣는 주소는 설치한 사람이 정합니다.</p>
+        <p class="cta">
+          <a class="btn" id="download" href="#">다운로드</a>
+          <span id="reqs"></span>
+        </p>
+      </section>
 
-  <section class="hero-visual" aria-label="앱 미리보기">
-    <video
-      class="promo"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="auto"
-      poster="promo-poster.jpg"
-    >
-      <source src="promo.mp4" type="video/mp4">
-    </video>
-  </section>
+      <section class="shot" aria-label="앱 화면">
+        <video
+          class="promo"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="auto"
+          poster="promo-poster.jpg"
+        >
+          <source src="promo.mp4" type="video/mp4">
+        </video>
+      </section>
 
-  <section class="features">
-    <article>
-      <h2>설치</h2>
-      <ol>
-        <li>dmg를 열고 <strong data-app-file>Alog.app</strong>을 Applications로 끌어다 놓습니다.</li>
-        <li>처음엔 <strong>우클릭 → 열기</strong> (공증 전이라 macOS가 한 번 막습니다).</li>
-        <li>사이트 추가 (⌘N). 넣는 순간 이 맥의 브라우저로 실제 페이지를 엽니다.</li>
+      <ol class="steps">
+        <li>
+          <span>1</span>
+          <p>dmg를 열고 <strong data-app-file>Alog.app</strong>을 Applications로 넣습니다.</p>
+        </li>
+        <li>
+          <span>2</span>
+          <p>처음엔 우클릭 → 열기. 공증 전이라 macOS가 한 번 막습니다.</p>
+        </li>
+        <li>
+          <span>3</span>
+          <p>⌘N으로 사이트를 추가하면 바로 이 맥에서 페이지를 엽니다.</p>
+        </li>
       </ol>
-    </article>
-    <article>
-      <h2>요구 사항</h2>
-      <p id="reqs-card"></p>
-    </article>
-    <article>
-      <h2>용도</h2>
-      <p>본인이 소유·운영하거나 모니터링 권한이 있는 사이트만. 조회수 조작이나 봇 탐지 회피는 범위가 아닙니다.</p>
-    </article>
-  </section>
 
-  <p class="warn">이후 버전은 앱 설정 → 업데이트에서 GitHub Releases zip을 받아 교체합니다.</p>
+      <section class="fine">
+        <p id="reqs-card"></p>
+        <p>본인이 소유·운영하거나 모니터링 권한이 있는 사이트만. 조회수 조작, 봇 탐지 회피는 안 합니다.</p>
+        <p>이후 버전은 설정 → 업데이트에서 GitHub Releases zip으로 교체합니다.</p>
+      </section>
+    </main>
 
-  <footer>
-    <span id="copy"></span>
-    · <a data-bind-href="githubURL">GitHub</a>
-  </footer>
-
+    <footer>
+      <span id="copy"></span>
+      <a data-bind-href="githubURL">소스</a>
+    </footer>
+  </div>
   <script src="site.js"></script>
 </body>
 </html>

@@ -14,11 +14,12 @@ function bindConfig(c) {
   });
   const download = document.getElementById("download");
   if (download && c.downloadURL) download.setAttribute("href", c.downloadURL);
-  const req = c.minOS + " 이상. 그 이하는 실행되지 않습니다.";
   const reqs = document.getElementById("reqs");
-  if (reqs) reqs.textContent = c.minOS + " 이상 · dmg";
+  if (reqs) reqs.textContent = c.minOS + " · dmg";
   const reqsCard = document.getElementById("reqs-card");
-  if (reqsCard) reqsCard.textContent = req;
+  if (reqsCard) {
+    reqsCard.textContent = c.minOS + " 이상. 그 이하는 실행되지 않습니다.";
+  }
   const copy = document.getElementById("copy");
   if (copy) copy.textContent = c.copyright;
 }
