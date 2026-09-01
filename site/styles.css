@@ -53,17 +53,16 @@ h1 {
 
 .video-wrap {
   margin: 8px 0 28px;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  border: 1px solid var(--line);
-  background: var(--bg);
-  aspect-ratio: 16 / 9;
+  background: transparent;
 }
 
 video.promo {
   display: block;
   width: 100%;
   height: auto;
+  vertical-align: top;
 }
 
 .actions {
