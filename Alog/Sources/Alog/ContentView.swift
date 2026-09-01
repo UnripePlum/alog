@@ -93,7 +93,7 @@ struct ContentView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(target.name.isEmpty ? target.url : target.name)
                                 .lineLimit(1)
-                            Text(controller.isRunning(target.id) ? "백그라운드 점검 중" : target.url)
+                            Text(controller.isRunning(target.id) ? "접속 중" : target.url)
                                 .font(.caption)
                                 .foregroundStyle(controller.isRunning(target.id) ? Color.green : Color.secondary)
                                 .lineLimit(1)
@@ -184,7 +184,7 @@ struct ContentView: View {
             Button {
                 if let id = selection { controller.runOnceNow(id) }
             } label: {
-                Label("즉시 점검", systemImage: "bolt.fill")
+                Label("지금 접속", systemImage: "bolt.fill")
             }
             .disabled(selection == nil)
 

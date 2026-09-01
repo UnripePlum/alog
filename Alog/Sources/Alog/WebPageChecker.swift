@@ -34,7 +34,7 @@ final class WebPageChecker: Checker {
     /// vantage가 있으면 해당 HTTP CONNECT 프록시를 통해 트래픽을 내보낸다.
     private func execute(target: Target, vantage: Vantage?) async -> (Bool, [ActionOutcome]) {
         guard !target.actions.isEmpty else {
-            return (false, [ActionOutcome(actionKind: .wait, ok: false, detail: "점검 동작이 없습니다", durationMs: 0)])
+            return (false, [ActionOutcome(actionKind: .wait, ok: false, detail: "접속 동작이 없습니다", durationMs: 0)])
         }
 
         guard let url = URL(string: target.url), url.scheme != nil else {

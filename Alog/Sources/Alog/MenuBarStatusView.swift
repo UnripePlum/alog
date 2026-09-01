@@ -20,7 +20,7 @@ struct MenuBarStatusView: View {
             }
         } else {
             if controller.config.targets.isEmpty {
-                Text("점검 중인 사이트가 없습니다")
+                Text("접속 중인 사이트가 없습니다")
             } else {
                 ForEach(controller.config.targets) { target in
                     Button {

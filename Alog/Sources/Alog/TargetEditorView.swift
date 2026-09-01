@@ -20,7 +20,7 @@ struct TargetEditorView: View {
                 Divider()
 
                 HStack {
-                    Text("점검 동작").font(.headline)
+                    Text("접속 동작").font(.headline)
                     Spacer()
                     Menu {
                         ForEach(ActionKind.allCases, id: \.self) { kind in

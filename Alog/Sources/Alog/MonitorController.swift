@@ -215,7 +215,7 @@ final class MonitorController: ObservableObject {
         guard activity == nil else { return }
         activity = ProcessInfo.processInfo.beginActivity(
             options: .userInitiated,
-            reason: "실제 웹페이지 백그라운드 점검"
+            reason: "실제 웹페이지 백그라운드 접속"
         )
     }
 

@@ -13,7 +13,7 @@ struct EmptyTargetPlaceholder: View {
                 .font(.title3)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-            Text("창을 닫아도 WebKit으로 실제 페이지를 열고 로드·제목·본문·스크롤을 점검합니다.")
+            Text("창을 닫아도 봇이 실제 페이지를 엽니다.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

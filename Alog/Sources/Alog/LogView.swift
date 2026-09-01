@@ -11,7 +11,7 @@ struct LogView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Text("점검 로그").font(.headline)
+                Text("접속 로그").font(.headline)
                     .layoutPriority(1)
                 Spacer(minLength: 8)
                 Text(schedule.intervalLabel)

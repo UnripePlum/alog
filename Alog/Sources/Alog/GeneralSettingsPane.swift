@@ -7,7 +7,7 @@ struct GeneralSettingsPane: View {
 
     var body: some View {
         Form {
-            Section("점검 주기 (랜덤 간격)") {
+            Section("접속 주기 (랜덤 간격)") {
                 LabeledContent("최소") {
                     secondsField($controller.config.schedule.minSeconds)
                 }
@@ -20,7 +20,7 @@ struct GeneralSettingsPane: View {
                     preset("1분", 45, 90)
                     preset("5분", 240, 360)
                 }
-                Text("다음 점검은 \(controller.config.schedule.intervalLabel) 이루어집니다. 실행 중 바꾸면 다음 대기부터 적용됩니다.")
+                Text("다음 접속은 \(controller.config.schedule.intervalLabel) 이루어집니다. 실행 중 바꾸면 다음 대기부터 적용됩니다.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -39,9 +39,9 @@ struct GeneralSettingsPane: View {
                 )
             }
 
-            Section("관측점 (다지역 점검)") {
+            Section("관측점 (다지역 접속)") {
                 if controller.config.vantages.isEmpty {
-                    Text("관측점이 없으면 로컬에서 직접 점검합니다. 프록시를 추가하면 각 대상을 관측점(지역)마다 점검합니다.")
+                    Text("관측점이 없으면 로컬에서 직접 접속합니다. 프록시를 추가하면 각 대상을 관측점(지역)마다 접속합니다.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
