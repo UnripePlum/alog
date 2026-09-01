@@ -69,9 +69,9 @@ final class AppIdentityTests: XCTestCase {
         XCTAssertEqual(id.repositoryLabel, "UnripePlum/alog")
         XCTAssertEqual(id.repositoryURL?.host, Defaults.githubHost)
         XCTAssertEqual(id.repositoryURL?.path, "/UnripePlum/alog")
-        XCTAssertEqual(id.resolvedHomepageURL, id.repositoryURL)
+        XCTAssertEqual(id.resolvedHomepageURL?.absoluteString, "https://alog.unripeplum.com")
         XCTAssertNil(id.supportMailURL)
-        XCTAssertEqual(id.checkAPIBaseURL, "https://alog.unripeplum.com")
+        XCTAssertEqual(id.checkAPIBaseURL, "")
     }
 
     func testMissingDeveloperFieldsDefaultEmpty() throws {
