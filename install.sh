@@ -5,4 +5,6 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE/Alog"
 swift test
 ./scripts/build_app.sh
-open "dist/Alog.app"
+./scripts/smoke_app.sh
+APP_NAME="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["bundleFileName"])' Sources/MonitorKit/Resources/identity.json)"
+open "dist/${APP_NAME}.app"

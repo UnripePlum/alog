@@ -34,12 +34,18 @@ public enum UpdateError: Error, Equatable, Sendable, LocalizedError {
     case noZipAsset
     case badResponse
     case emptyOwnerRepo
+    case translocated
+    case locationNotWritable(String)
 
     public var errorDescription: String? {
         switch self {
         case .noZipAsset: return "릴리즈에 설치용 zip이 없습니다."
         case .badResponse: return "업데이트 서버 응답이 올바르지 않습니다."
         case .emptyOwnerRepo: return "identity.json에 githubOwner/githubRepo가 없습니다."
+        case .translocated:
+            return "앱을 응용 프로그램 폴더로 옮긴 뒤 다시 열어야 업데이트할 수 있습니다."
+        case .locationNotWritable(let path):
+            return "이 위치에는 쓸 수 없어 업데이트하지 못했습니다: \(path)"
         }
     }
 }

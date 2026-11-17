@@ -6,6 +6,7 @@
 - Python unit tests: `python -m pytest` (deps: `requirements-dev.txt`)
 - Swift engine tests: `cd Alog && swift test`
 - macOS app bundle: `cd Alog && ./scripts/build_app.sh`
+- Packaged-app smoke: `cd Alog && ./scripts/smoke_app.sh` (hides `.build`, launches the bundle with an empty home, fails if it exits)
 
 ## Layers
 - **Unit:** `MonitorKit` (TargetFactory, ConfigStore, ActionJS, logger) and `tests/` for the Python CLI.

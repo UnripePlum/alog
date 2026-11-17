@@ -16,9 +16,9 @@
 
 1. [Releases](https://github.com/UnripePlum/alog/releases/latest)에서 `Alog.dmg`를 받습니다.
 2. 디스크 이미지를 열고 `Alog.app`을 Applications로 끌어다 놓습니다.
-3. **우클릭 → 열기** (서명·공증 전이라 Gatekeeper가 한 번 막습니다).
+3. 처음 열면 macOS가 막습니다 (서명·공증 전). **시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기**를 누릅니다. 터미널로는 `xattr -dr com.apple.quarantine /Applications/Alog.app`.
 4. 사이트 추가 (⌘N). 넣는 순간 실제 페이지를 열고 점검을 시작합니다.
-5. 이후 버전은 앱의 **설정(⌘,) → 업데이트** 또는 메뉴 **업데이트 확인…** 으로 받습니다. 업데이트는 zip을 받아 현재 앱을 교체한 뒤 다시 시작합니다.
+5. 이후 버전은 앱의 **설정(⌘,) → 업데이트** 또는 메뉴 **업데이트 확인…** 으로 받습니다. 업데이트는 zip을 받아 현재 앱을 교체한 뒤 다시 시작합니다. 앱이 Applications 같은 쓸 수 있는 폴더에 있어야 합니다. dmg 안이나 다운로드 폴더에서 바로 연 상태에서는 업데이트를 거절합니다.
 6. 버전·개발자 정보는 **Alog → 정보** 또는 **설정 → 정보**에서 볼 수 있습니다.
 
 구버전을 막으려면 저장소 루트 `update-policy.json`의 `minimumVersion`을 올리면 됩니다. 현재 버전이 그보다 낮으면 점검을 멈추고 GitHub Releases의 **최신** zip을 바로 받습니다. 지금은 `0.0.0.0`이라 아무도 막지 않습니다. 설정 → 업데이트에서 최소·현재·최신을 볼 수 있습니다.
@@ -53,8 +53,11 @@ chmod +x install.sh
 cd Alog
 swift test
 ./scripts/build_app.sh
+./scripts/smoke_app.sh
 open dist/Alog.app
 ```
+
+빌드는 기본이 유니버설(Apple Silicon + Intel)이라 Xcode가 필요합니다. Command Line Tools만 있으면 `ALOG_ARCHS=arm64 ./scripts/build_app.sh` 처럼 한쪽만 빌드하세요. `smoke_app.sh`는 빌드 폴더를 숨긴 채 앱을 띄워, 빌드하지 않은 맥에서도 뜨는지 봅니다.
 
 표시 이름·번들 id·설정 폴더·개발자 정보는 `Alog/Sources/MonitorKit/Resources/identity.json` 한 곳입니다.
 

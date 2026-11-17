@@ -25,6 +25,9 @@ jobs:
       - name: Build .app
         working-directory: Alog
         run: ./scripts/build_app.sh
+      - name: Launch packaged app without the build folder
+        working-directory: Alog
+        run: ./scripts/smoke_app.sh
       - uses: actions/upload-artifact@v4
         if: success()
         with:

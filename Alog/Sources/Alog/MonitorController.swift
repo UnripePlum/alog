@@ -137,7 +137,9 @@ final class MonitorController: ObservableObject {
     func runSelfTestIfRequested() {
         let env = ProcessInfo.processInfo.environment
         guard let url = env["ALOG_SELFTEST_URL"] else { return }
-        let outPath = env["ALOG_SELFTEST_OUT"] ?? "/tmp/alog_selftest.txt"
+        let outPath = env["ALOG_SELFTEST_OUT"]
+            ?? FileManager.default.temporaryDirectory
+                .appendingPathComponent(Defaults.selfTestOutputFileName).path
         let text = env["ALOG_SELFTEST_TEXT"] ?? ""
 
         var vantage: Vantage?

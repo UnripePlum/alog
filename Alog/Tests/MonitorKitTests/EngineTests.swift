@@ -118,6 +118,28 @@ final class AppIdentityTests: XCTestCase {
         XCTAssertEqual(found, present)
         XCTAssertNil(AppIdentity.firstExistingIdentityFile(in: [missing]) { _ in false })
     }
+
+    /// 회귀: 패키징된 앱에서는 앞 후보(main bundle)가 있으면 뒤 후보(Bundle.module)를
+    /// 평가조차 하면 안 된다. 평가하면 빌드 경로가 없는 맥에서 실행 즉시 죽는다.
+    func testIdentityProvidersAreEvaluatedLazily() {
+        let present = FileManager.default.temporaryDirectory.appendingPathComponent("present-identity.json")
+        var laterCalls = 0
+        let found = AppIdentity.firstExistingIdentityFile(
+            from: [{ present }, { laterCalls += 1; return nil }]
+        ) { $0 == present }
+        XCTAssertEqual(found, present)
+        XCTAssertEqual(laterCalls, 0)
+    }
+
+    func testIdentityProvidersFallThroughWhenEarlierIsMissing() {
+        let missing = FileManager.default.temporaryDirectory.appendingPathComponent("missing-identity.json")
+        let present = FileManager.default.temporaryDirectory.appendingPathComponent("present-identity.json")
+        let found = AppIdentity.firstExistingIdentityFile(
+            from: [{ nil }, { missing }, { present }]
+        ) { $0 == present }
+        XCTAssertEqual(found, present)
+        XCTAssertNil(AppIdentity.firstExistingIdentityFile(from: [{ nil }, { missing }]) { _ in false })
+    }
 }
 
 final class ConfigStoreTests: XCTestCase {

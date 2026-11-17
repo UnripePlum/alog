@@ -8,9 +8,13 @@ struct UpdateInstaller {
     var identity: AppIdentity
     var fileManager: FileManager = .default
 
+    /// 실행 중인 번들 위치. 저장하지 않고 매번 읽는다.
+    var bundleURL: URL { Bundle.main.bundleURL }
+
     func stage(_ release: AppRelease) async throws -> URL {
+        try InstallLocation.validate(bundleURL: bundleURL)
         let work = fileManager.temporaryDirectory
-            .appendingPathComponent("AlogUpdate-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("\(identity.bundleFileName)Update-\(UUID().uuidString)", isDirectory: true)
         try fileManager.createDirectory(at: work, withIntermediateDirectories: true)
         let zip = work.appendingPathComponent("update.zip")
         try await http.download(from: release.downloadURL, to: zip)
@@ -22,20 +26,19 @@ struct UpdateInstaller {
     }
 
     func replaceRunningApp(with staged: URL) throws {
-        let current = Bundle.main.bundleURL
-        let dest = current
+        let dest = bundleURL
+        try InstallLocation.validate(bundleURL: dest)
+        let token = UUID().uuidString
         let scriptURL = fileManager.temporaryDirectory
-            .appendingPathComponent("alog-relaunch-\(UUID().uuidString).sh")
-        let pid = ProcessInfo.processInfo.processIdentifier
-        let body = """
-        #!/bin/bash
-        set -euo pipefail
-        while kill -0 \(pid) 2>/dev/null; do sleep 0.2; done
-        rm -rf \(shQuote(dest.path))
-        mv \(shQuote(staged.path)) \(shQuote(dest.path))
-        open \(shQuote(dest.path))
-        rm -f "$0"
-        """
+            .appendingPathComponent("\(identity.bundleFileName)-relaunch-\(token).sh")
+        let backup = dest.deletingLastPathComponent()
+            .appendingPathComponent(".\(dest.lastPathComponent).previous-\(token)")
+        let body = RelaunchScript.body(
+            pid: ProcessInfo.processInfo.processIdentifier,
+            staged: staged.path,
+            destination: dest.path,
+            backup: backup.path
+        )
         try body.write(to: scriptURL, atomically: true, encoding: .utf8)
         try fileManager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptURL.path)
         let proc = Process()
@@ -59,9 +62,5 @@ struct UpdateInstaller {
         try proc.run()
         proc.waitUntilExit()
         guard proc.terminationStatus == 0 else { throw UpdateError.badResponse }
-    }
-
-    private func shQuote(_ path: String) -> String {
-        "'" + path.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 }

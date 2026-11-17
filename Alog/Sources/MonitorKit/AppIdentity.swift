@@ -127,12 +127,27 @@ public struct AppIdentity: Codable, Sendable, Equatable {
     }
 
     public static func bundledIdentityURL() -> URL {
-        let candidates: [URL] = [
-            Bundle.main.url(forResource: "identity", withExtension: "json"),
-            Bundle.module.url(forResource: "identity", withExtension: "json"),
-        ].compactMap { $0 }
-        if let url = firstExistingIdentityFile(in: candidates) { return url }
+        if let url = firstExistingIdentityFile(from: bundledIdentityProviders) { return url }
         preconditionFailure("identity.json 이 없습니다 (앱 Resources 또는 MonitorKit 번들)")
+    }
+
+    /// 후보를 순서대로, **필요할 때만** 평가한다.
+    /// `Bundle.module` 은 SwiftPM 리소스 번들을 못 찾으면 프로세스를 죽인다. 패키징된 앱에는
+    /// 그 번들이 없고 빌드한 머신의 절대경로만 남으므로, 앞 후보가 있으면 건드리지 않아야 한다.
+    static let bundledIdentityProviders: [() -> URL?] = [
+        { Bundle.main.url(forResource: Defaults.identityResourceName, withExtension: Defaults.identityResourceExtension) },
+        { Bundle.module.url(forResource: Defaults.identityResourceName, withExtension: Defaults.identityResourceExtension) },
+    ]
+
+    /// 앞 provider가 존재하는 파일을 주면 뒤 provider는 호출하지 않는다.
+    public static func firstExistingIdentityFile(
+        from providers: [() -> URL?],
+        fileExists: (URL) -> Bool = { FileManager.default.fileExists(atPath: $0.path) }
+    ) -> URL? {
+        for provider in providers {
+            if let url = provider(), fileExists(url) { return url }
+        }
+        return nil
     }
 
     /// 패키징된 앱은 main bundle Resources를, 테스트/swift run 은 module bundle을 쓴다.

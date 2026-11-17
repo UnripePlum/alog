@@ -216,6 +216,89 @@ final class GitHubReleaseParseTests: XCTestCase {
     }
 }
 
+final class InstallLocationTests: XCTestCase {
+    private let app = URL(fileURLWithPath: "/Apps/Some.app")
+
+    func testWritableParentIsAccepted() {
+        XCTAssertNoThrow(try InstallLocation.validate(bundleURL: app) { $0 == "/Apps" })
+    }
+
+    func testUnwritableParentIsRejectedBeforeAnythingIsRemoved() {
+        XCTAssertThrowsError(try InstallLocation.validate(bundleURL: app) { _ in false }) { error in
+            XCTAssertEqual(error as? UpdateError, .locationNotWritable("/Apps"))
+        }
+    }
+
+    func testTranslocatedBundleIsRejectedEvenIfWritable() {
+        let moved = URL(fileURLWithPath: "/private/var/folders/x\(Defaults.translocationPathMarker)ABCD/d/Some.app")
+        XCTAssertThrowsError(try InstallLocation.validate(bundleURL: moved) { _ in true }) { error in
+            XCTAssertEqual(error as? UpdateError, .translocated)
+        }
+    }
+}
+
+final class RelaunchScriptTests: XCTestCase {
+    private func run(_ body: String) throws {
+        let script = FileManager.default.temporaryDirectory
+            .appendingPathComponent("relaunch-test-\(UUID().uuidString).sh")
+        // 테스트에서는 실제 앱을 열지 않도록 open 만 무력화한다.
+        try ("open() { :; }\n" + body).write(to: script, atomically: true, encoding: .utf8)
+        let proc = Process()
+        proc.executableURL = URL(fileURLWithPath: "/bin/bash")
+        proc.arguments = [script.path]
+        proc.standardError = FileHandle.nullDevice
+        try proc.run()
+        proc.waitUntilExit()
+    }
+
+    private func makeDir(_ name: String, marker: String, in root: URL) throws -> URL {
+        let dir = root.appendingPathComponent(name, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try marker.write(to: dir.appendingPathComponent("marker"), atomically: true, encoding: .utf8)
+        return dir
+    }
+
+    private func tempRoot() throws -> URL {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("relaunch it's-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        return root
+    }
+
+    private let deadPID: Int32 = 0x7FFF_FFF0
+
+    func testSwapsStagedIntoDestinationAndDropsBackup() throws {
+        let root = try tempRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let dest = try makeDir("Some.app", marker: "old", in: root)
+        let staged = try makeDir("staged.app", marker: "new", in: root)
+        let backup = root.appendingPathComponent(".Some.app.previous")
+
+        try run(RelaunchScript.body(
+            pid: deadPID, staged: staged.path, destination: dest.path, backup: backup.path))
+
+        XCTAssertEqual(try String(contentsOf: dest.appendingPathComponent("marker"), encoding: .utf8), "new")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: backup.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: staged.path))
+    }
+
+    func testRestoresPreviousAppWhenStagedIsMissing() throws {
+        let root = try tempRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let dest = try makeDir("Some.app", marker: "old", in: root)
+        let backup = root.appendingPathComponent(".Some.app.previous")
+
+        try run(RelaunchScript.body(
+            pid: deadPID,
+            staged: root.appendingPathComponent("gone.app").path,
+            destination: dest.path,
+            backup: backup.path))
+
+        XCTAssertEqual(try String(contentsOf: dest.appendingPathComponent("marker"), encoding: .utf8), "old")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: backup.path))
+    }
+}
+
 final class MockHTTP: HTTPClient, @unchecked Sendable {
     var dataByURL: [URL: Data] = [:]
 

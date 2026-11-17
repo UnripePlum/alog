@@ -13,6 +13,11 @@ public enum Defaults {
     public static let unrestrictedMinimum = "0.0.0.0"
     public static let forcedUpdateMessage = "이 버전은 더 이상 사용할 수 없습니다. 업데이트하세요."
     public static let apiTokenFileName = TokenResolver.fileName
+    public static let identityResourceName = "identity"
+    public static let identityResourceExtension = "json"
+    /// Gatekeeper가 격리된 앱을 읽기 전용으로 띄울 때 경로에 들어가는 조각.
+    public static let translocationPathMarker = "/AppTranslocation/"
+    public static let selfTestOutputFileName = "alog_selftest.txt"
 
     /// 새 사이트에 붙는 기본 점검 동작. 파라미터 없이 렌더링 건강도를 본다.
     public static func starterActions() -> [ActionSpec] {
