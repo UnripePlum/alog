@@ -7,6 +7,7 @@
 - Swift engine tests: `cd Alog && swift test`
 - macOS app bundle: `cd Alog && ./scripts/build_app.sh`
 - Packaged-app smoke: `cd Alog && ./scripts/smoke_app.sh` (hides `.build`, launches the bundle with an empty home, fails if it exits)
+- Periodic update check: run the app with `ALOG_UPDATE_CHECK_INTERVAL_SECONDS=4`; `support-policy.json` in the support folder is rewritten on every check.
 
 ## Layers
 - **Unit:** `MonitorKit` (TargetFactory, ConfigStore, ActionJS, logger) and `tests/` for the Python CLI.

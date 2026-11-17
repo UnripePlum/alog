@@ -18,6 +18,8 @@ public enum Defaults {
     /// Gatekeeper가 격리된 앱을 읽기 전용으로 띄울 때 경로에 들어가는 조각.
     public static let translocationPathMarker = "/AppTranslocation/"
     public static let selfTestOutputFileName = "alog_selftest.txt"
+    /// 앱이 켜져 있는 동안 새 버전을 다시 확인하는 간격.
+    public static let updateCheckIntervalSeconds: Double = 24 * 60 * 60
 
     /// 새 사이트에 붙는 기본 점검 동작. 파라미터 없이 렌더링 건강도를 본다.
     public static func starterActions() -> [ActionSpec] {

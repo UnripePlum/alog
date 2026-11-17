@@ -75,6 +75,9 @@ struct AlogApp: App {
         if let last = controller.entries.first, !last.ok {
             return "exclamationmark.triangle.fill"
         }
+        if case .available = updates.status {
+            return "arrow.down.circle.fill"
+        }
         return controller.anyRunning ? "globe.fill" : "globe"
     }
 }

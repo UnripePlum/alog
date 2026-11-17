@@ -23,6 +23,7 @@ final class UpdateService: ObservableObject {
     private let policyStore: PolicyStore
     private let installer: UpdateInstaller
     private var pendingRelease: AppRelease?
+    private var periodicChecks: Task<Void, Never>?
 
     var isBlocked: Bool { versions.isBelowMinimum }
 
@@ -31,7 +32,8 @@ final class UpdateService: ObservableObject {
         checker: (any UpdateChecking)? = nil,
         policyChecker: (any SupportPolicyChecking)? = nil,
         policyStore: PolicyStore? = nil,
-        installer: UpdateInstaller? = nil
+        installer: UpdateInstaller? = nil,
+        periodicInterval: Double = UpdateSchedule.interval()
     ) {
         let identity = AppIdentity.current
         let http = URLSessionHTTPClient()
@@ -49,6 +51,23 @@ final class UpdateService: ObservableObject {
             )
             self.policyMessage = cached.message
         }
+        startPeriodicChecks(every: periodicInterval)
+    }
+
+    /// 앱이 켜져 있는 동안 `interval` 초마다 조용히 확인한다. 다시 부르면 이전 루프를 대체한다.
+    func startPeriodicChecks(every interval: Double) {
+        periodicChecks?.cancel()
+        periodicChecks = Task { [weak self] in
+            await Periodic.run(every: interval) { [weak self] in
+                await self?.checkInBackground()
+            }
+        }
+    }
+
+    /// 사용자가 직접 확인 중이면 끼어들지 않는다.
+    private func checkInBackground() async {
+        if status == .checking { return }
+        await check(silent: true)
     }
 
     var currentVersionLabel: String { versions.current.string }

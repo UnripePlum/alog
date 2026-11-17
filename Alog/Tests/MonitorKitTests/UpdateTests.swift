@@ -299,6 +299,75 @@ final class RelaunchScriptTests: XCTestCase {
     }
 }
 
+final class PeriodicTests: XCTestCase {
+    /// 정해진 횟수만 기다려 주고 그다음엔 취소된 것처럼 던진다.
+    final class CountingSleeper: Sleeper, @unchecked Sendable {
+        var remaining: Int
+        var requested: [Double] = []
+        init(allow: Int) { remaining = allow }
+
+        func sleep(seconds: Double) async throws {
+            requested.append(seconds)
+            guard remaining > 0 else { throw CancellationError() }
+            remaining -= 1
+        }
+    }
+
+    func testRunsBodyOncePerIntervalUntilSleeperStops() async {
+        let sleeper = CountingSleeper(allow: 3)
+        var runs = 0
+        await Periodic.run(every: 60, sleeper: sleeper) { runs += 1 }
+        XCTAssertEqual(runs, 3)
+        XCTAssertEqual(sleeper.requested, [60, 60, 60, 60])
+    }
+
+    func testWaitsBeforeFirstRun() async {
+        let sleeper = CountingSleeper(allow: 0)
+        var runs = 0
+        await Periodic.run(every: 60, sleeper: sleeper) { runs += 1 }
+        XCTAssertEqual(runs, 0)
+        XCTAssertEqual(sleeper.requested, [60])
+    }
+
+    func testNonPositiveIntervalDoesNothing() async {
+        let sleeper = CountingSleeper(allow: 5)
+        var runs = 0
+        await Periodic.run(every: 0, sleeper: sleeper) { runs += 1 }
+        XCTAssertEqual(runs, 0)
+        XCTAssertTrue(sleeper.requested.isEmpty)
+    }
+
+    func testStopsWhenTaskIsCancelled() async {
+        let task = Task {
+            var runs = 0
+            await Periodic.run(every: 3600) { runs += 1 }
+            return runs
+        }
+        task.cancel()
+        let runs = await task.value
+        XCTAssertEqual(runs, 0)
+    }
+}
+
+final class UpdateScheduleTests: XCTestCase {
+    func testDefaultsWhenUnset() {
+        XCTAssertEqual(UpdateSchedule.interval(environment: [:]), Defaults.updateCheckIntervalSeconds)
+    }
+
+    func testEnvironmentOverridesInterval() {
+        XCTAssertEqual(UpdateSchedule.interval(environment: [UpdateSchedule.intervalEnvKey: " 90 "]), 90)
+    }
+
+    func testInvalidValuesFallBackToDefault() {
+        for raw in ["", "abc", "0", "-5", "inf", "nan"] {
+            XCTAssertEqual(
+                UpdateSchedule.interval(environment: [UpdateSchedule.intervalEnvKey: raw]),
+                Defaults.updateCheckIntervalSeconds,
+                "raw=\(raw)")
+        }
+    }
+}
+
 final class MockHTTP: HTTPClient, @unchecked Sendable {
     var dataByURL: [URL: Data] = [:]
 

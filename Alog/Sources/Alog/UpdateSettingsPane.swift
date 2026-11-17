@@ -27,6 +27,9 @@ struct UpdateSettingsPane: View {
                 Text(statusLine)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                Text(scheduleLine)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 if case .available(let rel) = updates.status {
                     Button("\(rel.version.string) 설치") {
                         Task { await updates.installAvailable() }
@@ -41,6 +44,12 @@ struct UpdateSettingsPane: View {
             }
         }
         .formStyle(.grouped)
+    }
+
+    private var scheduleLine: String {
+        let every = Duration.seconds(UpdateSchedule.interval())
+            .formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide))
+        return "앱을 열 때, 그리고 켜져 있는 동안 \(every)마다 자동으로 확인합니다."
     }
 
     private var statusLine: String {
